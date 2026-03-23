@@ -1,0 +1,145 @@
+{
+  "projectType": "saas",
+  "projectName": "Space7",
+  "projectDescription": "Space7 is a React Native mobile app for topic-centric discussions where users create public or private rooms (spaces), chat in real time, share media, and react to messages.",
+  "theme": "almond",
+  "primaryColor": "#64dcfc",
+  "lightColor": "#448494",
+  "darkColor": "#24252d",
+  "navigation": {
+    "tabs": [
+      {
+        "tab": "Documentation",
+        "groups": [
+          {
+            "group": "Get Started",
+            "pages": ["introduction", "quickstart", "environment-setup"]
+          },
+          {
+            "group": "Core Features",
+            "pages": [
+              "features/spaces",
+              "features/messaging",
+              "features/search",
+              "features/notifications",
+              "features/profile"
+            ]
+          },
+          {
+            "group": "Navigation & Screens",
+            "pages": [
+              "screens/home",
+              "screens/new-topic",
+              "screens/my-discussions",
+              "screens/space",
+              "screens/my-profile"
+            ]
+          },
+          {
+            "group": "Development",
+            "pages": [
+              "development/project-structure",
+              "development/scripts",
+              "development/troubleshooting"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "API Reference",
+        "groups": [
+          {
+            "group": "Authentication",
+            "pages": [
+              "api-reference/auth/signup",
+              "api-reference/auth/login",
+              "api-reference/auth/verify-otp",
+              "api-reference/auth/forgot-password",
+              "api-reference/auth/reset-password"
+            ]
+          },
+          {
+            "group": "Spaces",
+            "pages": [
+              "api-reference/spaces/get-trending",
+              "api-reference/spaces/get-recommended",
+              "api-reference/spaces/get-my-spaces",
+              "api-reference/spaces/create-space",
+              "api-reference/spaces/get-space-by-id",
+              "api-reference/spaces/join-space",
+              "api-reference/spaces/search-spaces"
+            ]
+          },
+          {
+            "group": "Messages",
+            "pages": [
+              "api-reference/messages/get-messages",
+              "api-reference/messages/send-message",
+              "api-reference/messages/appreciate-message",
+              "api-reference/messages/delete-message"
+            ]
+          },
+          {
+            "group": "Profile",
+            "pages": [
+              "api-reference/profile/get-profile",
+              "api-reference/profile/update-username",
+              "api-reference/profile/update-bio",
+              "api-reference/profile/update-picture",
+              "api-reference/profile/update-password",
+              "api-reference/profile/delete-account"
+            ]
+          },
+          {
+            "group": "Notifications",
+            "pages": [
+              "api-reference/notifications/get-notifications",
+              "api-reference/notifications/mark-read",
+              "api-reference/notifications/mark-all-read"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "keyFeatures": [
+    "Topic-centric discussion rooms (Spaces) with public and private visibility",
+    "Real-time messaging via Socket.IO",
+    "Media sharing — images, videos, and audio in messages",
+    "Message appreciation (reactions/likes) system",
+    "Tag-based and full-text search for discovering spaces",
+    "Trending and personalized space recommendations",
+    "User profiles with contribution stats",
+    "Push notifications for activity updates",
+    "OTP-based email verification and password reset",
+    "Animated bottom tab navigation with bold card-driven UI"
+  ],
+  "publicApiSurface": [
+    "POST /api/auth/signup",
+    "POST /api/auth/login",
+    "POST /api/auth/verify-otp",
+    "POST /api/auth/forgot-password",
+    "POST /api/auth/reset-password",
+    "GET /api/spaces/trending",
+    "GET /api/spaces/recommended",
+    "GET /api/spaces/my",
+    "POST /api/spaces",
+    "GET /api/spaces/:spaceId",
+    "POST /api/spaces/:spaceId/join",
+    "GET /api/spaces/search?q=",
+    "GET /api/spaces/tag/:tag",
+    "GET /api/messages/:spaceId",
+    "POST /api/messages/:spaceId",
+    "POST /api/messages/:spaceId/:messageId/appreciate",
+    "DELETE /api/messages/:spaceId/:messageId",
+    "GET /api/profile/me",
+    "PUT /api/profile/username",
+    "PUT /api/profile/bio",
+    "PUT /api/profile/picture",
+    "PUT /api/profile/password",
+    "DELETE /api/profile/account",
+    "GET /api/notifications",
+    "PUT /api/notifications/:id/read",
+    "PUT /api/notifications/read-all"
+  ]
+}
