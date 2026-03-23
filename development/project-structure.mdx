@@ -1,0 +1,217 @@
+---
+title: Project Structure
+description: A guide to the Space7 source tree — what each directory and root-level file is for.
+---
+
+Space7 follows the standard React Native project layout with all application code organised under `src/`. Native project files live in `android/` and `ios/`, and tests live in `__tests__/`.
+
+## Directory tree
+
+```text
+space7/
+├── App.tsx                  # Root component and navigation entry point
+├── package.json             # Dependencies and npm scripts
+├── metro.config.js          # Metro bundler configuration
+├── babel.config.js          # Babel transpiler configuration
+├── biome.json               # Biome linter and formatter configuration
+├── tsconfig.json            # TypeScript compiler configuration
+├── jest.config.js           # Jest test runner configuration
+├── android/                 # Android native project
+├── ios/                     # iOS native project (not actively maintained)
+├── __tests__/               # Test files
+└── src/
+    ├── api/
+    │   ├── fetchWithAuth.ts
+    │   ├── Auth.ts
+    │   ├── Messages.ts
+    │   ├── Notifications.ts
+    │   ├── Profile.ts
+    │   ├── Search.ts
+    │   └── Spaces.ts
+    ├── assets/              # Fonts, images, and static files
+    ├── constants/
+    │   └── Network.ts
+    ├── context/
+    │   ├── AuthContext.ts
+    │   ├── UserContext.ts
+    │   └── SpaceContext.ts
+    ├── screens/
+    │   ├── auth/
+    │   ├── home/
+    │   ├── my-discussions/
+    │   ├── my-profile/
+    │   ├── new-topic/
+    │   ├── notifications/
+    │   ├── settings/
+    │   └── space/
+    ├── sockets/
+    │   └── SocketInstance.ts
+    ├── types/
+    │   ├── types.d.ts
+    │   └── env.d.ts
+    └── utils/
+        └── authStore.ts
+```
+
+## Root-level files
+
+<CardGroup cols={2}>
+  <Card title="App.tsx" icon="code">
+    The root React component. Sets up `AuthProvider`, `UserProvider`, and `TopicContext`, then renders either the `AuthScreen` or the bottom-tab `Navigation` depending on authentication state. Also defines the custom animated tab bar (`MyTabBar`).
+  </Card>
+  <Card title="package.json" icon="package">
+    Lists all runtime dependencies (React Native, React Navigation, Socket.IO, etc.), dev dependencies (Biome, Jest, TypeScript), and the npm scripts used in daily development.
+  </Card>
+  <Card title="biome.json" icon="check">
+    Configures Biome 2.4.5 for linting and formatting. Enforces tab indentation, double quotes for JavaScript strings, and automatic import organisation. Excludes `node_modules`, `android`, `ios`, and `vendor`.
+  </Card>
+  <Card title="tsconfig.json" icon="file-code">
+    Extends `@react-native/typescript-config` and adds `jest` and `node` to the compiler's type roots. Includes all `.ts` and `.tsx` files while excluding `node_modules` and `Pods`.
+  </Card>
+  <Card title="jest.config.js" icon="flask">
+    Configures Jest with the `react-native` preset. Defines `transformIgnorePatterns` to allow Jest to transform packages such as `@react-navigation` and `react-native-screens`, and maps module aliases like `@env` and native modules to mock files.
+  </Card>
+  <Card title="metro.config.js" icon="server">
+    Metro bundler configuration used when you run `npm run dev` or `npm run android`.
+  </Card>
+</CardGroup>
+
+## `src/` breakdown
+
+### `api/`
+
+Contains all REST API client functions. Every module (except `fetchWithAuth.ts`) exports async functions that call the backend over HTTP.
+
+| File | Purpose |
+|------|---------|
+| `fetchWithAuth.ts` | Shared fetch wrapper that attaches the stored JWT as a `Bearer` token, sets `Content-Type: application/json` for non-`FormData` requests, and automatically triggers logout on a `401` response. |
+| `Auth.ts` | Login, registration, and related authentication endpoints. |
+| `Messages.ts` | Fetching and posting messages within a space. |
+| `Notifications.ts` | Reading and managing user notifications. |
+| `Profile.ts` | Fetching and updating the current user's profile (`getProfile`, etc.). |
+| `Search.ts` | Full-text or topic search across spaces. |
+| `Spaces.ts` | Creating, listing, and joining topic spaces. |
+
+All API modules consume `fetchWithAuth` so authentication handling is centralised in one place.
+
+### `assets/`
+
+Stores fonts, images, and any other static files bundled with the app. After adding new assets here, run `npm run link` to register them with the native layer and then rebuild the Android app.
+
+### `constants/`
+
+Holds application-wide constant values.
+
+- **`Network.ts`** — exports the `API` constant, which reads the `SERVER_ENDPOINT` environment variable (declared in `src/types/env.d.ts` via the `@env` module) and falls back to an empty string.
+
+```typescript
+import { SERVER_ENDPOINT } from "@env";
+
+export const API = SERVER_ENDPOINT ?? "";
+```
+
+<Warning>
+  `API` will be an empty string if `SERVER_ENDPOINT` is not set in your `.env` file. All network requests will fail silently. Make sure the variable is defined before running the app.
+</Warning>
+
+### `context/`
+
+React context providers that make shared state available throughout the component tree.
+
+<CardGroup cols={1}>
+  <Card title="AuthContext.ts">
+    Provides `isAuthenticated`, `isLoading`, `login(token)`, and `logout()`. On mount it restores the previous session by reading the stored JWT from `authStore`. It also exposes `notifyUnauthorizedLogout` — a module-level escape hatch called by `fetchWithAuth` when the server returns `401`, so the app can log out without needing a direct reference to the context.
+  </Card>
+  <Card title="UserContext.ts">
+    Provides the current user's `Profile` object, an `isLoading` flag, `refreshUser()`, and `clearUser()`. Automatically fetches the profile via `getProfile()` whenever `isAuthenticated` changes to `true`.
+  </Card>
+  <Card title="SpaceContext.ts">
+    A lightweight context (`TopicContext`) that stores the currently active `topicId`. When `topicId` is set, `App.tsx` renders the `Space` screen instead of the main tab navigator, effectively using the context as a simple modal-navigation layer.
+  </Card>
+</CardGroup>
+
+The three providers are composed in `App.tsx` in this order:
+
+```typescript
+<AuthProvider>
+  <UserProvider>
+    <AppContent />
+  </UserProvider>
+</AuthProvider>
+```
+
+`TopicContext.Provider` is rendered inside `AppContent`, wrapping only the authenticated part of the tree.
+
+### `screens/`
+
+Each subdirectory maps to one app area. Screen components import from `api/`, `context/`, and `sockets/` as needed.
+
+| Directory | Screen | Tab bar icon |
+|-----------|--------|--------------|
+| `auth/` | `AuthScreen` — shown before authentication | — |
+| `home/` | `Home` — main topic feed | Home (house) |
+| `new-topic/` | `NewTopic` — create a new topic | Plus (pink badge) |
+| `my-discussions/` | `MyDiscussions` — discussions the user participates in | Comments |
+| `my-profile/` | `MyProfile` — user profile and settings | User |
+| `notifications/` | `Notifications` — notification inbox | — |
+| `settings/` | Settings screen | — |
+| `space/` | `Space` — real-time discussion view for a topic | — |
+
+<Note>
+  `Notifications` and `Settings` screens are not currently registered as bottom tabs in `App.tsx`. They are available as screen components but must be navigated to from within other screens.
+</Note>
+
+### `sockets/`
+
+**`SocketInstance.ts`** creates and exports a single Socket.IO client instance (with `autoConnect: false` and `transports: ["websocket"]`) along with a set of helper functions:
+
+| Export | Description |
+|--------|-------------|
+| `connectSocket()` | Reads the stored JWT, sets `socket.auth`, and calls `socket.connect()`. |
+| `disconnectSocket()` | Disconnects if currently connected. |
+| `joinSpace(spaceId)` | Emits `join_space` to subscribe to a space room. |
+| `leaveSpace(spaceId)` | Emits `leave_space` to unsubscribe from a space room. |
+| `sendMessage(payload)` | Emits `send_message` with a `{ spaceId, message }` payload. |
+| `setMessageAppreciated(payload)` | Emits `message_appreciated` with like/unlike data. |
+| `onReceiveMessage(handler)` | Registers a `receive_message` listener and returns a cleanup function. |
+| `onMessageAppreciated(handler)` | Registers a `message_appreciated` listener and returns a cleanup function. |
+
+### `types/`
+
+TypeScript type and ambient declaration files.
+
+- **`types.d.ts`** — exports `TopicItem`, the core data shape used across the app:
+
+  ```typescript
+  export type TopicItem = {
+    id: string;
+    topic: string;
+    description: string;
+    author: string;
+    count: number;
+    tags: string[];
+  };
+  ```
+
+- **`env.d.ts`** — declares the `@env` ambient module so TypeScript recognises the `SERVER_ENDPOINT` import injected by `react-native-dotenv`:
+
+  ```typescript
+  declare module "@env" {
+    export const SERVER_ENDPOINT: string;
+  }
+  ```
+
+### `utils/`
+
+- **`authStore.ts`** — wraps `react-native-keychain` to provide `saveToken`, `getToken`, and `clearToken` helpers used by `AuthContext` and `fetchWithAuth`.
+
+## Native directories
+
+| Directory | Purpose |
+|-----------|---------|
+| `android/` | Android native project (Gradle, Java/Kotlin source, manifests). This is the primary build target. |
+| `ios/` | iOS native project generated by the React Native CLI. Not actively maintained — you do not need to run CocoaPods or maintain iOS builds. |
+
+## `__tests__/`
+
+Contains Jest test files. The Jest configuration maps native-only modules (`react-native-image-picker`, `react-native-video`, `@react-native-documents/picker`, font files) to mock implementations so tests can run in Node without a device.

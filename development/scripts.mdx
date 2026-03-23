@@ -1,0 +1,221 @@
+---
+title: npm Scripts
+description: Reference for every npm script defined in Space7's package.json — what each command does and when to use it.
+---
+
+All scripts are defined in `package.json` and invoked with `npm run <script>`.
+
+## Quick reference
+
+<CardGroup cols={2}>
+  <Card title="android" icon="android">
+    Build and launch the app on a connected Android device or emulator.
+  </Card>
+  <Card title="android:fresh" icon="rotate">
+    Reset the Metro cache, then build and run Android — useful after dependency changes.
+  </Card>
+  <Card title="android:clean" icon="trash">
+    Delete stale Gradle artefacts and rebuild from scratch.
+  </Card>
+  <Card title="ios" icon="apple">
+    Run on iOS. Kept from the default template but not actively maintained.
+  </Card>
+  <Card title="dev" icon="play">
+    Start the Metro bundler in a standalone terminal.
+  </Card>
+  <Card title="test" icon="flask">
+    Run the full Jest test suite.
+  </Card>
+  <Card title="biome:run" icon="check">
+    Lint, format, and auto-fix all source files with Biome.
+  </Card>
+  <Card title="link" icon="link">
+    Register new fonts or static assets with the native layer.
+  </Card>
+</CardGroup>
+
+---
+
+## `npm run android`
+
+```bash
+react-native run-android
+```
+
+Builds the debug APK with Gradle and installs it on the first available Android device or emulator, then starts the app. Metro must already be running in a separate terminal (via `npm run dev`), or the CLI will start it automatically.
+
+**When to use it:** your normal day-to-day command after the initial setup is complete and Metro is already running.
+
+<Steps>
+  <Step title="Start an emulator or connect a device">
+    Confirm the device is visible with `adb devices`.
+  </Step>
+  <Step title="Start Metro (if not already running)">
+    ```bash
+    npm run dev
+    ```
+  </Step>
+  <Step title="Build and launch">
+    ```bash
+    npm run android
+    ```
+  </Step>
+</Steps>
+
+---
+
+## `npm run android:fresh`
+
+```bash
+sh -c 'react-native start --reset-cache & sleep 5 && react-native run-android'
+```
+
+Starts Metro with `--reset-cache` in the background, waits 5 seconds for it to initialise, then runs `react-native run-android`. Both processes run in the same terminal session.
+
+**When to use it:** after adding or upgrading a JavaScript dependency and you want to guarantee Metro picks up the new module graph without stale cache entries.
+
+<Note>
+  Because Metro starts in the background with `&`, its output is interleaved with the Android build output. If you need to monitor Metro logs separately, use `npm run dev` and `npm run android` in two terminals instead.
+</Note>
+
+---
+
+## `npm run android:clean`
+
+```bash
+rm -rf android/app/.cxx android/app/build/generated/autolinking \
+  && cd android \
+  && ./gradlew clean -x externalNativeBuildCleanDebug -x externalNativeBuildCleanRelease \
+  && cd .. \
+  && react-native run-android
+```
+
+This command:
+
+1. Removes the C++ build cache (`android/app/.cxx`) and the auto-linking generated sources (`android/app/build/generated/autolinking`).
+2. Runs `./gradlew clean`, skipping the slow native (CMake/NDK) clean tasks.
+3. Rebuilds and relaunches the app.
+
+**When to use it:**
+- After adding or removing a native dependency.
+- After changing `android/` configuration files.
+- When you see `Gradle` errors that persist after a normal `npm run android`.
+- As a first troubleshooting step when the app crashes on launch after a dependency change.
+
+<Warning>
+  This command deletes build artefacts and triggers a full Gradle rebuild, which takes significantly longer than a normal `npm run android`. Avoid using it for routine code changes.
+</Warning>
+
+---
+
+## `npm run ios`
+
+```bash
+react-native run-ios
+```
+
+Runs the app on the iOS simulator or a connected iOS device using the React Native CLI.
+
+**When to use it:** Space7 targets Android. This script is kept from the default React Native project template. You do not need to run CocoaPods or maintain iOS builds unless you intentionally decide to support iOS.
+
+<Warning>
+  iOS builds are not actively maintained. The `ios/` directory exists but may drift out of sync with native dependency changes applied only to Android.
+</Warning>
+
+---
+
+## `npm run dev`
+
+```bash
+react-native start
+```
+
+Starts the Metro JavaScript bundler. Metro watches your source files and serves bundles to connected devices or emulators over a local HTTP server (default port `8081`).
+
+**When to use it:** run this in a dedicated terminal before running `npm run android`. Keep it running throughout your development session so Fast Refresh delivers UI updates instantly.
+
+```bash
+# Reset the Metro cache manually if needed
+npm run dev -- --reset-cache
+```
+
+<Tip>
+  Fast Refresh is enabled by default. Most changes to screen components appear on the device within a second without a full rebuild.
+</Tip>
+
+---
+
+## `npm run test`
+
+```bash
+jest
+```
+
+Runs the full Jest test suite using the `react-native` preset. The configuration in `jest.config.js` transforms packages such as `@react-navigation` and `react-native-screens` that ship untranspiled ESM, and substitutes mocks for native-only modules (`react-native-image-picker`, `react-native-video`, `@react-native-documents/picker`, font files, and `@env`).
+
+**When to use it:** before opening a pull request, or after refactoring shared logic in `src/api/`, `src/context/`, or `src/utils/`.
+
+```bash
+npm run test
+
+# Run a single test file
+npm run test -- MyComponent.test.tsx
+
+# Watch mode
+npm run test -- --watch
+```
+
+---
+
+## `npm run biome:run`
+
+```bash
+biome check --write
+```
+
+Runs all Biome checks — linting, formatting, and import organisation — across every file matched by `biome.json`, and applies safe auto-fixes. The configuration enforces:
+
+- Tab indentation
+- Double quotes for JavaScript/TypeScript strings
+- Recommended lint rules
+- Automatic import ordering
+
+Biome excludes `node_modules`, `android`, `ios`, and `vendor`.
+
+**When to use it:** before committing changes. The `husky` pre-commit hook (`prepare` script) is set up to enforce code quality on every commit.
+
+```bash
+npm run biome:run
+```
+
+<Tip>
+  If you see TypeScript or lint errors after pulling changes, running `npm run biome:run` will auto-fix most formatting issues. Review any remaining errors that require manual changes.
+</Tip>
+
+---
+
+## `npm run link`
+
+```bash
+npx react-native-asset
+```
+
+Uses `react-native-asset` to copy fonts and static files from `src/assets/` into the native Android and iOS project directories, so the native layer can load them at runtime.
+
+**When to use it:** after adding a new custom font or any other bundled static asset to `src/assets/`. After linking, rebuild the Android app for the changes to take effect.
+
+<Steps>
+  <Step title="Add your asset">
+    Place the font or file in `src/assets/`.
+  </Step>
+  <Step title="Link the asset">
+    ```bash
+    npm run link
+    ```
+  </Step>
+  <Step title="Rebuild the app">
+    ```bash
+    npm run android:clean
+    ```
+  </Step>
+</Steps>

@@ -1,122 +1,122 @@
 {
   "$schema": "https://mintlify.com/docs.json",
-  "theme": "mint",
-  "name": "Mint Starter Kit",
+  "name": "Space7",
+  "theme": "almond",
   "colors": {
-    "primary": "#16A34A",
-    "light": "#07C983",
-    "dark": "#15803D"
+    "primary": "#64dcfc",
+    "light": "#448494",
+    "dark": "#24252d"
   },
-  "favicon": "/favicon.svg",
+  "favicon": "https://media.brand.dev/d549859b-415c-4263-a00d-0983a5af3d0a.svg",
+  "logo": {
+    "light": "https://media.brand.dev/f9e9c7b2-e12b-4600-9ba1-4219ce5dcdc6.png",
+    "dark": "https://media.brand.dev/d549859b-415c-4263-a00d-0983a5af3d0a.svg"
+  },
+  "navbar": {
+    "primary": {
+      "type": "github",
+      "href": "https://github.com/sam-shervin/space7"
+    }
+  },
+  "footer": {
+    "socials": {
+      "github": "https://github.com/sam-shervin/space7"
+    }
+  },
   "navigation": {
     "tabs": [
       {
-        "tab": "Guides",
+        "tab": "Documentation",
         "groups": [
           {
-            "group": "Getting started",
+            "group": "Get Started",
+            "pages": ["introduction", "quickstart", "environment-setup"]
+          },
+          {
+            "group": "Core Features",
             "pages": [
-              "index",
-              "quickstart",
-              "development"
+              "features/spaces",
+              "features/messaging",
+              "features/search",
+              "features/notifications",
+              "features/profile"
             ]
           },
           {
-            "group": "Customization",
+            "group": "Navigation & Screens",
             "pages": [
-              "essentials/settings",
-              "essentials/navigation"
+              "screens/home",
+              "screens/new-topic",
+              "screens/my-discussions",
+              "screens/space",
+              "screens/my-profile"
             ]
           },
           {
-            "group": "Writing content",
+            "group": "Development",
             "pages": [
-              "essentials/markdown",
-              "essentials/code",
-              "essentials/images",
-              "essentials/reusable-snippets"
-            ]
-          },
-          {
-            "group": "AI tools",
-            "pages": [
-              "ai-tools/cursor",
-              "ai-tools/claude-code",
-              "ai-tools/windsurf"
+              "development/project-structure",
+              "development/scripts",
+              "development/troubleshooting"
             ]
           }
         ]
       },
       {
-        "tab": "API reference",
+        "tab": "API Reference",
         "groups": [
           {
-            "group": "API documentation",
+            "group": "Authentication",
             "pages": [
-              "api-reference/introduction"
+              "api-reference/auth/signup",
+              "api-reference/auth/login",
+              "api-reference/auth/verify-otp",
+              "api-reference/auth/forgot-password",
+              "api-reference/auth/reset-password"
             ]
           },
           {
-            "group": "Endpoint examples",
+            "group": "Spaces",
             "pages": [
-              "api-reference/endpoint/get",
-              "api-reference/endpoint/create",
-              "api-reference/endpoint/delete",
-              "api-reference/endpoint/webhook"
+              "api-reference/spaces/get-trending",
+              "api-reference/spaces/get-recommended",
+              "api-reference/spaces/get-my-spaces",
+              "api-reference/spaces/create-space",
+              "api-reference/spaces/get-space-by-id",
+              "api-reference/spaces/join-space",
+              "api-reference/spaces/search-spaces"
+            ]
+          },
+          {
+            "group": "Messages",
+            "pages": [
+              "api-reference/messages/get-messages",
+              "api-reference/messages/send-message",
+              "api-reference/messages/appreciate-message",
+              "api-reference/messages/delete-message"
+            ]
+          },
+          {
+            "group": "Profile",
+            "pages": [
+              "api-reference/profile/get-profile",
+              "api-reference/profile/update-username",
+              "api-reference/profile/update-bio",
+              "api-reference/profile/update-picture",
+              "api-reference/profile/update-password",
+              "api-reference/profile/delete-account"
+            ]
+          },
+          {
+            "group": "Notifications",
+            "pages": [
+              "api-reference/notifications/get-notifications",
+              "api-reference/notifications/mark-read",
+              "api-reference/notifications/mark-all-read"
             ]
           }
         ]
       }
-    ],
-    "global": {
-      "anchors": [
-        {
-          "anchor": "Documentation",
-          "href": "https://mintlify.com/docs",
-          "icon": "book-open-cover"
-        },
-        {
-          "anchor": "Blog",
-          "href": "https://mintlify.com/blog",
-          "icon": "newspaper"
-        }
-      ]
-    }
-  },
-  "logo": {
-    "light": "/logo/light.svg",
-    "dark": "/logo/dark.svg"
-  },
-  "navbar": {
-    "links": [
-      {
-        "label": "Support",
-        "href": "mailto:hi@mintlify.com"
-      }
-    ],
-    "primary": {
-      "type": "button",
-      "label": "Dashboard",
-      "href": "https://dashboard.mintlify.com"
-    }
-  },
-  "contextual": {
-    "options": [
-     "copy",
-     "view",
-     "chatgpt",
-     "claude",
-     "perplexity",
-     "mcp",
-     "cursor",
-     "vscode"
-   ]
-  },
-  "footer": {
-    "socials": {
-      "x": "https://x.com/mintlify",
-      "github": "https://github.com/mintlify",
-      "linkedin": "https://linkedin.com/company/mintlify"
-    }
+    ]
   }
 }

@@ -1,0 +1,59 @@
+---
+title: New Topic
+description: Create a new public space for others to join and discuss. Fill in a title, description, and optional hashtags, then tap Create.
+---
+
+The New Topic screen is the second tab in the bottom bar (pink plus icon). It presents a form for creating a new space. All new spaces are **public** by default.
+
+## Form fields
+
+<CardGroup cols={1}>
+  <Card title="Title" icon="heading">
+    A single-line text input (cyan label). Required. The API rejects submissions if this field is empty or contains only whitespace.
+  </Card>
+  <Card title="Description" icon="align-left">
+    A multiline text input (pink label, 4 visible lines, 100 px tall). Required. Describe what the space is about.
+  </Card>
+  <Card title="Hashtags" icon="hashtag">
+    A multiline text input inside a yellow panel. Enter tags separated by commas. The `#` character is stripped automatically, so you can type with or without it.
+  </Card>
+</CardGroup>
+
+<Note>
+  Visibility is fixed to **public** in the current release. There is no toggle to create a private space.
+</Note>
+
+## Adding hashtags
+
+Type your tags as a comma-separated list in the hashtag input. The screen parses the input live and renders a preview row of cyan pill badges below the text field.
+
+```
+tech, react native, mobile
+```
+
+The preview shows `#tech`, `#react native`, and `#mobile` as individual badges. To remove a tag, edit the text input and delete that term from the comma-separated list.
+
+## Submitting the form
+
+<Steps>
+  <Step title="Fill in Title and Description">
+    Both fields are required. If either is empty when you tap **Create**, an error message appears in magenta text below the hashtag section and the request is not sent.
+  </Step>
+  <Step title="Add hashtags (optional)">
+    Type your comma-separated tags. The preview updates as you type.
+  </Step>
+  <Step title="Tap Create">
+    Tap the **Create** button at the bottom of the form. The button label changes to *Creating…* and becomes disabled while the request is in flight.
+  </Step>
+  <Step title="Navigate to My Discussions">
+    On success, the form clears and the app navigates you to the [My Discussions](/screens/my-discussions) tab, where the new space appears at the top of your list.
+  </Step>
+</Steps>
+
+<Warning>
+  If the API returns an error (for example, a duplicate title or a network failure), the error message is shown below the hashtags section and the form stays open so you can correct the input.
+</Warning>
+
+## After creation
+
+Once the space is created you land on **My Discussions**. From there, tap your new space card to enter the [Space](/screens/space) chat room and start the discussion.

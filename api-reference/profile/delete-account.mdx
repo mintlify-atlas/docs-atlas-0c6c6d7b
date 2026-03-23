@@ -1,0 +1,40 @@
+---
+title: "Delete Account"
+description: "Permanently delete the authenticated user's account and all associated data."
+---
+
+## Overview
+
+Permanently deletes the account of the currently authenticated user.
+
+<Warning>
+  This action is permanent and cannot be undone. All user data — including profile information, spaces, contributions, and stats — is immediately and irreversibly deleted.
+</Warning>
+
+## Endpoint
+
+```
+DELETE /api/profile/account
+```
+
+<Note>Requires authentication. Requests are made with a Bearer token via the `Authorization` header.</Note>
+
+## Request
+
+This endpoint takes no request body or query parameters.
+
+## Response
+
+<ResponseField name="message" type="string">
+  A confirmation message indicating the account was deleted.
+</ResponseField>
+
+## Example
+
+```typescript TypeScript
+import { deleteAccount } from "./api/Profile";
+
+const response = await deleteAccount();
+
+console.log(response.message);
+```

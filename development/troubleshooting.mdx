@@ -1,0 +1,214 @@
+---
+title: Troubleshooting
+description: Solutions to common issues you may encounter when developing Space7 on Android.
+---
+
+This page covers problems frequently encountered during local development. Each section describes the symptom and provides step-by-step commands to resolve it.
+
+<AccordionGroup>
+  <Accordion title="Metro is already running or stuck on the wrong port">
+    **Symptom:** Running `npm run android` or `npm run dev` prints an error like `Metro is already running` or the bundler serves from an unexpected port, causing the app to fail to connect.
+
+    **Solution:**
+
+    <Steps>
+      <Step title="Find and kill the existing Metro process">
+        On Linux/macOS, identify the process occupying port 8081:
+
+        ```bash
+        lsof -ti :8081 | xargs kill -9
+        ```
+
+        Alternatively, use your system's process manager to end any `node` process running `react-native start`.
+      </Step>
+      <Step title="Restart Metro">
+        ```bash
+        npm run dev
+        ```
+      </Step>
+      <Step title="Relaunch the app in a second terminal">
+        ```bash
+        npm run android
+        ```
+      </Step>
+    </Steps>
+
+    <Tip>
+      If Metro keeps restarting unexpectedly, try resetting its cache: `npm run dev -- --reset-cache`
+    </Tip>
+  </Accordion>
+
+  <Accordion title="Android build fails after adding or changing a native dependency">
+    **Symptom:** `npm run android` fails with a Gradle error after you added, removed, or upgraded a library that has native Android code.
+
+    **Solution:**
+
+    <Steps>
+      <Step title="Run the clean build script">
+        This removes stale C++ build artefacts, clears Gradle-generated autolinking files, runs `./gradlew clean`, and then rebuilds:
+
+        ```bash
+        npm run android:clean
+        ```
+      </Step>
+      <Step title="Check if the dependency requires manual Android setup">
+        Some libraries require additional steps in `android/app/build.gradle` or `AndroidManifest.xml`. Consult the library's documentation if `android:clean` alone does not resolve the error.
+      </Step>
+    </Steps>
+
+    <Warning>
+      `android:clean` deletes build artefacts and triggers a full Gradle rebuild. Expect it to take several minutes on the first run after cleaning.
+    </Warning>
+  </Accordion>
+
+  <Accordion title="Device not detected by adb">
+    **Symptom:** `adb devices` returns an empty list, or the device shows as `unauthorized`.
+
+    **Solution:**
+
+    <Steps>
+      <Step title="Verify USB debugging is enabled">
+        On your Android device:
+        - Open **Settings → About phone** and tap **Build number** seven times to enable Developer Options.
+        - Open **Settings → Developer options** and turn on **USB debugging**.
+        - When prompted on the device screen, tap **Allow** to authorise your computer.
+      </Step>
+      <Step title="Check the USB connection mode">
+        Make sure the USB cable is in data transfer mode (MTP or file transfer), not charge-only mode.
+      </Step>
+      <Step title="Restart the adb server">
+        ```bash
+        adb kill-server
+        adb start-server
+        adb devices
+        ```
+      </Step>
+      <Step title="Verify adb is in your PATH">
+        If `adb` is not found, add Android platform-tools to your shell profile:
+
+        ```bash
+        export ANDROID_HOME=$HOME/Library/Android/sdk   # macOS
+        export PATH=$PATH:$ANDROID_HOME/platform-tools
+        ```
+
+        Then reload your shell: `source ~/.zshrc` (or `~/.bashrc`).
+      </Step>
+    </Steps>
+  </Accordion>
+
+  <Accordion title="Gradle sync fails or SDK path is invalid">
+    **Symptom:** Gradle fails with errors about a missing SDK, unresolved dependencies, or incompatible build tools versions.
+
+    **Solution:**
+
+    <Steps>
+      <Step title="Open the android/ directory in Android Studio">
+        ```bash
+        open android
+        ```
+
+        Or launch Android Studio and choose **Open** → `<project-root>/android`.
+      </Step>
+      <Step title="Check the SDK path">
+        In Android Studio go to **File → Project Structure → SDK Location** and confirm the Android SDK path is valid and points to an installed SDK.
+      </Step>
+      <Step title="Install required SDK packages">
+        Open **SDK Manager** (the puzzle-piece icon in the toolbar) and install the API level and build tools versions referenced in `android/app/build.gradle`.
+      </Step>
+      <Step title="Trigger a Gradle sync">
+        Click **File → Sync Project with Gradle Files**. Address any errors reported in the **Build** output panel.
+      </Step>
+    </Steps>
+  </Accordion>
+
+  <Accordion title="App behaves unexpectedly after a dependency change (cache issues)">
+    **Symptom:** After running `npm install` or changing a dependency, the app exhibits stale behaviour — showing old screens, crashing on import, or failing to resolve a module — even though the source code looks correct.
+
+    **Solution:**
+
+    <Steps>
+      <Step title="Reset the Metro cache">
+        ```bash
+        npm run dev -- --reset-cache
+        ```
+
+        Leave Metro running.
+      </Step>
+      <Step title="Clean and rebuild the Android app">
+        In a second terminal:
+
+        ```bash
+        npm run android:clean
+        ```
+      </Step>
+    </Steps>
+
+    <Note>
+      Running both steps together ensures neither the JavaScript bundle cache nor the native build artefacts contain stale data.
+    </Note>
+  </Accordion>
+
+  <Accordion title="TypeScript errors or unexpected lint failures">
+    **Symptom:** Your editor shows TypeScript errors or Biome reports lint violations after pulling new code or refactoring.
+
+    **Solution:**
+
+    <Steps>
+      <Step title="Run Biome auto-fix">
+        Most formatting and safe lint issues are fixed automatically:
+
+        ```bash
+        npm run biome:run
+        ```
+      </Step>
+      <Step title="Review remaining errors manually">
+        Errors that Biome cannot auto-fix (e.g. type mismatches) are printed to the console. Fix them in your editor using the reported file paths and line numbers.
+      </Step>
+      <Step title="Confirm the TypeScript compiler is satisfied">
+        ```bash
+        npx tsc --noEmit
+        ```
+      </Step>
+    </Steps>
+
+    <Tip>
+      The Biome configuration in `biome.json` excludes `android/`, `ios/`, `node_modules/`, and `vendor/`, so you only see errors for your own source files.
+    </Tip>
+  </Accordion>
+
+  <Accordion title="Missing environment variables — network requests all fail">
+    **Symptom:** All API calls fail silently, the Socket.IO connection never establishes, or you see errors referencing an empty URL. This happens when `SERVER_ENDPOINT` is not set.
+
+    **Solution:**
+
+    <Steps>
+      <Step title="Create a .env file in the project root">
+        ```bash
+        touch .env
+        ```
+      </Step>
+      <Step title="Add the SERVER_ENDPOINT variable">
+        ```text
+        SERVER_ENDPOINT=http://your-backend-host:port
+        ```
+
+        Replace `http://your-backend-host:port` with your actual backend URL. When running on an Android emulator, `10.0.2.2` maps to your host machine's localhost.
+
+        ```text
+        SERVER_ENDPOINT=http://10.0.2.2:3000
+        ```
+      </Step>
+      <Step title="Restart Metro and rebuild">
+        Environment variables are baked into the bundle at build time by `react-native-dotenv`. Metro must be restarted with a cache reset for the new value to take effect:
+
+        ```bash
+        npm run android:fresh
+        ```
+      </Step>
+    </Steps>
+
+    <Warning>
+      Do not commit your `.env` file to version control. Add it to `.gitignore` to prevent accidentally leaking your backend endpoint.
+    </Warning>
+  </Accordion>
+</AccordionGroup>

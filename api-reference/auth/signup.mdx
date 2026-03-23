@@ -1,0 +1,89 @@
+---
+title: "Sign Up"
+description: "Create a new user account and trigger email OTP verification."
+---
+
+## Overview
+
+Creates a new user account with a username, email, and password. On success, an OTP is sent to the provided email address. The account is not active until the OTP is verified.
+
+## Endpoint
+
+```
+POST /api/auth/signup
+```
+
+## Request
+
+### Headers
+
+| Header | Value |
+|---|---|
+| Content-Type | application/json |
+
+### Body parameters
+
+<ParamField body="username" type="string" required>
+  The desired display name for the new account.
+</ParamField>
+
+<ParamField body="email" type="string" required>
+  The email address for the account. An OTP will be sent here.
+</ParamField>
+
+<ParamField body="password" type="string" required>
+  The password for the new account.
+</ParamField>
+
+## Response
+
+### Success
+
+<ResponseField name="status" type="number">
+  HTTP status code of the response (e.g. `200`).
+</ResponseField>
+
+<ResponseField name="...data" type="object">
+  Additional user data returned by the server on successful signup.
+</ResponseField>
+
+### Error
+
+<ResponseField name="error" type="string">
+  Human-readable error message describing why signup failed.
+</ResponseField>
+
+<Note>
+  After a successful signup, an OTP is sent to the provided email address. You must call [Verify OTP](/api-reference/auth/verify-otp) to activate the account.
+</Note>
+
+## Example
+
+```typescript TypeScript
+const API = process.env.SERVER_ENDPOINT ?? "";
+
+const signup = async (username: string, email: string, password: string) => {
+  const res = await fetch(`${API}/api/auth/signup`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      username,
+      email,
+      password,
+    }),
+  });
+
+  const data = await res.json();
+
+  if (!res.ok) {
+    throw new Error(data.error || "Signup failed");
+  }
+
+  return {
+    status: res.status,
+    ...data,
+  };
+};
+```

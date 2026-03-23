@@ -1,0 +1,67 @@
+---
+title: "Delete a Message"
+description: "Delete a message from a space."
+---
+
+## Overview
+
+Permanently deletes a message from a space. Users can only delete their own messages.
+
+## Endpoint
+
+```
+DELETE /api/messages/:spaceId/:messageId
+```
+
+<Note>Requires authentication</Note>
+
+## Request
+
+### Path parameters
+
+<ParamField path="spaceId" type="string" required>
+  The unique identifier of the space the message belongs to.
+</ParamField>
+
+<ParamField path="messageId" type="string" required>
+  The unique identifier of the message to delete.
+</ParamField>
+
+<Note>
+  Users can only delete their own messages. Attempting to delete another user's message will return an error.
+</Note>
+
+## Response
+
+<ResponseField name="message" type="string">
+  A confirmation string indicating the message was successfully deleted.
+</ResponseField>
+
+## Example
+
+```typescript TypeScript
+import { fetchWithAuth } from "./fetchWithAuth";
+
+const deleteMessage = async (
+  spaceId: string,
+  messageId: string,
+): Promise<{ message: string }> => {
+  const res = await fetchWithAuth(
+    `/api/messages/${spaceId}/${messageId}`,
+    {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    },
+  );
+
+  const data = await res.json();
+
+  if (!res.ok) {
+    throw new Error(data.error || "Failed to delete message");
+  }
+
+  return data; // { message: string }
+};
+```

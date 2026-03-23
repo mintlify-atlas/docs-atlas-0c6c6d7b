@@ -1,0 +1,97 @@
+---
+title: Notifications
+description: Stay up to date with activity in your Spaces through the in-app notification centre.
+---
+
+Space7 surfaces activity relevant to you through a paginated notification feed. You can see all notifications in one place, track how many are unread with the badge on the bell icon, and mark items as read individually or all at once.
+
+## Notification structure
+
+```typescript
+type Notification = {
+  id: number;
+  user_id: string;
+  type: string;
+  message: string;
+  reference_id: string;
+  is_read: boolean;
+  created_at: string;
+};
+```
+
+| Field | Description |
+|---|---|
+| `id` | Numeric identifier for the notification |
+| `user_id` | The recipient's user ID |
+| `type` | Event category string (e.g. a new message in a Space you follow) |
+| `message` | Human-readable description of the event, shown directly in the UI |
+| `reference_id` | ID of the related entity (e.g. a `space_id` or `message_id`) |
+| `is_read` | `false` until you mark the notification as read |
+| `created_at` | ISO-8601 timestamp of when the event occurred |
+
+## Fetching notifications
+
+Open the notification centre by tapping the **bell** icon in the top-right corner of the home screen. The app calls:
+
+```bash
+GET /api/notifications?page=1&limit=30
+```
+
+The response is paginated:
+
+```typescript
+type NotificationsResponse = {
+  notifications: Notification[];
+  total: number;        // total notification count
+  page: number;         // current page (1-indexed)
+  totalPages: number;   // total number of pages
+  unreadCount: number;  // count of notifications where is_read === false
+};
+```
+
+The default page size is **30** notifications. Pass `page` and `limit` as query parameters to load earlier notifications.
+
+## Unread count badge
+
+The `unreadCount` field in `NotificationsResponse` drives the badge displayed on the bell icon in the home screen header. It reflects the number of notifications where `is_read` is `false` at the time of the request.
+
+<Info>
+  The unread badge is refreshed every time you open the notification centre. Navigate away and back to get an updated count.
+</Info>
+
+## Marking notifications as read
+
+<Tabs>
+  <Tab title="Mark one as read">
+    Tap a notification to mark it as read. The app sends:
+
+    ```bash
+    PUT /api/notifications/:id/read
+    ```
+
+    where `:id` is the numeric `id` of the notification. The notification's `is_read` field becomes `true` and the unread badge decrements.
+
+    ```typescript
+    // Response
+    { message: string }
+    ```
+  </Tab>
+  <Tab title="Mark all as read">
+    Tap **Mark all as read** to clear every unread notification in a single action. The app sends:
+
+    ```bash
+    PUT /api/notifications/read-all
+    ```
+
+    All notifications for your account are marked as read and the badge resets to zero.
+
+    ```typescript
+    // Response
+    { message: string }
+    ```
+  </Tab>
+</Tabs>
+
+<Note>
+  Both mark-as-read endpoints require authentication. Unauthenticated requests are rejected with an error.
+</Note>

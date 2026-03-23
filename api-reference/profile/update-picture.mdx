@@ -1,0 +1,65 @@
+---
+title: "Update Profile Picture"
+description: "Upload a new profile picture for the authenticated user."
+---
+
+## Overview
+
+Uploads a new profile picture for the currently authenticated user. The request body must be sent as `multipart/form-data` with a field named `avatar`.
+
+The `fetchWithAuth` helper automatically omits the `Content-Type` header when the request body is a `FormData` instance, allowing the browser or native runtime to set the correct `multipart/form-data` boundary.
+
+## Endpoint
+
+```
+PUT /api/profile/picture
+```
+
+<Note>Requires authentication. Requests are made with a Bearer token via the `Authorization` header.</Note>
+
+## Request
+
+Send the image as a `multipart/form-data` upload using a FormData field named `avatar`.
+
+### Body parameters
+
+<ParamField body="avatar" type="object" required>
+  The image file to upload, appended to FormData as the `avatar` field.
+  <Expandable title="properties">
+    <ParamField body="uri" type="string" required>
+      Local URI or path of the image file to upload.
+    </ParamField>
+    <ParamField body="name" type="string">
+      File name for the upload. Defaults to `avatar-{timestamp}.jpg` if not provided.
+    </ParamField>
+    <ParamField body="type" type="string">
+      MIME type of the image. Defaults to `image/jpeg` if not provided.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+## Response
+
+<ResponseField name="profile_picture" type="string">
+  URL of the newly uploaded profile picture.
+</ResponseField>
+
+## Example
+
+```typescript TypeScript
+import { updateProfilePicture } from "./api/Profile";
+
+// Provide only the required `uri`; name and type default automatically.
+const response = await updateProfilePicture({
+  uri: "file:///path/to/photo.jpg",
+});
+
+console.log(response.profile_picture); // URL of the new profile picture
+
+// Or supply all fields explicitly.
+const response2 = await updateProfilePicture({
+  uri: "file:///path/to/photo.png",
+  name: "my-avatar.png",
+  type: "image/png",
+});
+```

@@ -1,0 +1,407 @@
+---
+title: Environment Setup
+description: Install and configure every tool you need to build and run Space7 on Android.
+---
+
+This guide covers the full Android development environment required to build Space7. Follow every section in order if you are setting up a machine from scratch.
+
+<Note>
+Space7 targets **Android only**. You do not need to install Xcode, CocoaPods, or any iOS toolchain to build and run the app.
+</Note>
+
+---
+
+## Node.js
+
+Space7 requires Node.js `>= 22.11.0`. The minimum version is enforced by the `engines` field in `package.json`.
+
+<Tabs>
+  <Tab title="macOS">
+    The recommended approach on macOS is to use `nvm` (Node Version Manager), which lets you switch between Node versions easily.
+
+    <Steps>
+      <Step title="Install nvm">
+        ```bash
+        curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash
+        ```
+
+        Restart your terminal, then verify the install:
+
+        ```bash
+        nvm --version
+        ```
+      </Step>
+
+      <Step title="Install Node.js 22">
+        ```bash
+        nvm install 22
+        nvm use 22
+        nvm alias default 22
+        ```
+      </Step>
+
+      <Step title="Verify">
+        ```bash
+        node --version
+        npm --version
+        ```
+
+        `node --version` must print `v22.11.0` or higher.
+      </Step>
+    </Steps>
+  </Tab>
+
+  <Tab title="Linux">
+    <Steps>
+      <Step title="Install nvm">
+        ```bash
+        curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash
+        ```
+
+        Source your shell config to activate nvm:
+
+        ```bash
+        source ~/.bashrc
+        # or, if using zsh:
+        source ~/.zshrc
+        ```
+      </Step>
+
+      <Step title="Install Node.js 22">
+        ```bash
+        nvm install 22
+        nvm use 22
+        nvm alias default 22
+        ```
+      </Step>
+
+      <Step title="Verify">
+        ```bash
+        node --version
+        npm --version
+        ```
+      </Step>
+    </Steps>
+  </Tab>
+
+  <Tab title="Windows">
+    On Windows, use **nvm-windows** or install Node.js directly.
+
+    **Option A — nvm-windows (recommended)**
+
+    Download and run the installer from the [nvm-windows releases page](https://github.com/coreybutler/nvm-windows/releases), then open a new terminal and run:
+
+    ```powershell
+    nvm install 22
+    nvm use 22
+    ```
+
+    **Option B — Direct install**
+
+    Download the Node.js 22 LTS installer from the [official Node.js site](https://nodejs.org) and run it.
+
+    Verify the installation:
+
+    ```powershell
+    node --version
+    npm --version
+    ```
+  </Tab>
+</Tabs>
+
+---
+
+## JDK 17
+
+Android's Gradle build system requires JDK 17. Using a different major version will cause Gradle compatibility errors.
+
+<Tabs>
+  <Tab title="macOS">
+    Install JDK 17 using Homebrew:
+
+    ```bash
+    brew install --cask temurin@17
+    ```
+
+    Then add it to your shell profile (`~/.zshrc` or `~/.bash_profile`):
+
+    ```bash
+    export JAVA_HOME=$(/usr/libexec/java_home -v 17)
+    export PATH=$JAVA_HOME/bin:$PATH
+    ```
+
+    Reload your shell and verify:
+
+    ```bash
+    java -version
+    ```
+
+    The output should start with `openjdk version "17`.
+  </Tab>
+
+  <Tab title="Linux">
+    Install the Temurin JDK 17 package:
+
+    ```bash
+    # Ubuntu / Debian
+    sudo apt-get install -y wget apt-transport-https
+    wget -qO - https://packages.adoptium.net/artifactory/api/gpg/key/public | sudo apt-key add -
+    echo "deb https://packages.adoptium.net/artifactory/deb $(lsb_release -sc) main" | \
+      sudo tee /etc/apt/sources.list.d/adoptium.list
+    sudo apt-get update
+    sudo apt-get install -y temurin-17-jdk
+    ```
+
+    Set `JAVA_HOME` in your shell profile (`~/.bashrc` or `~/.zshrc`):
+
+    ```bash
+    export JAVA_HOME=/usr/lib/jvm/temurin-17-amd64
+    export PATH=$JAVA_HOME/bin:$PATH
+    ```
+
+    Reload and verify:
+
+    ```bash
+    java -version
+    ```
+  </Tab>
+
+  <Tab title="Windows">
+    Download the Temurin JDK 17 MSI installer from [adoptium.net](https://adoptium.net/temurin/releases/?version=17) and run it.
+
+    After installation, set `JAVA_HOME` in System Environment Variables:
+
+    1. Open **System Properties → Advanced → Environment Variables**.
+    2. Under **System variables**, click **New** and add:
+       - Variable name: `JAVA_HOME`
+       - Variable value: `C:\Program Files\Eclipse Adoptium\jdk-17.x.x.x-hotspot` (adjust to your install path)
+    3. Append `%JAVA_HOME%\bin` to the `Path` variable.
+
+    Open a new terminal and verify:
+
+    ```powershell
+    java -version
+    ```
+  </Tab>
+</Tabs>
+
+---
+
+## Android Studio and Android SDK
+
+Android Studio provides the Android SDK, the emulator, and the Gradle toolchain.
+
+<Steps>
+  <Step title="Download and install Android Studio">
+    Download Android Studio from [developer.android.com/studio](https://developer.android.com/studio) and follow the platform-specific installer.
+
+    During the setup wizard, make sure you select:
+    - **Android SDK**
+    - **Android SDK Platform**
+    - **Android Virtual Device**
+  </Step>
+
+  <Step title="Install required SDK packages">
+    Open Android Studio, go to **Settings → Languages & Frameworks → Android SDK** (or **SDK Manager** from the Welcome screen).
+
+    Under the **SDK Platforms** tab, install at minimum:
+    - Android 13.0 (API 33) or higher
+
+    Under the **SDK Tools** tab, make sure these are installed:
+    - Android SDK Build-Tools
+    - Android SDK Platform-Tools
+    - Android Emulator
+    - Android SDK Command-line Tools (latest)
+
+    Click **Apply** to download and install.
+  </Step>
+
+  <Step title="Set ANDROID_HOME and update PATH">
+    The React Native toolchain requires `ANDROID_HOME` to point to your SDK directory.
+
+    <Tabs>
+      <Tab title="macOS / Linux">
+        Add the following to your shell profile (`~/.zshrc`, `~/.bashrc`, or `~/.bash_profile`):
+
+        ```bash
+        export ANDROID_HOME=$HOME/Library/Android/sdk       # macOS
+        # export ANDROID_HOME=$HOME/Android/Sdk             # Linux
+        export PATH=$PATH:$ANDROID_HOME/emulator
+        export PATH=$PATH:$ANDROID_HOME/platform-tools
+        ```
+
+        Reload your shell:
+
+        ```bash
+        source ~/.zshrc
+        ```
+      </Tab>
+
+      <Tab title="Windows">
+        Open **System Properties → Advanced → Environment Variables**.
+
+        Add a new system variable:
+        - Variable name: `ANDROID_HOME`
+        - Variable value: `C:\Users\<YourUsername>\AppData\Local\Android\Sdk`
+
+        Then append the following to the `Path` variable:
+        - `%ANDROID_HOME%\emulator`
+        - `%ANDROID_HOME%\platform-tools`
+      </Tab>
+    </Tabs>
+
+    Verify `adb` is available:
+
+    ```bash
+    adb --version
+    ```
+  </Step>
+
+  <Step title="Create an Android Virtual Device (AVD)">
+    In Android Studio, open **Device Manager** and click **Create Device**.
+
+    Recommended configuration for Space7 development:
+    - **Device**: Pixel 7 (or any phone profile)
+    - **System Image**: API 33 or higher (x86_64 recommended for performance)
+    - **RAM**: 2 GB minimum
+
+    Start the emulator from Device Manager and wait for the home screen to appear before running `npm run android`.
+  </Step>
+</Steps>
+
+---
+
+## ADB Setup and Device Verification
+
+`adb` (Android Debug Bridge) is your primary tool for verifying device connectivity. It is installed with the Android SDK platform-tools.
+
+### Verify a connected device or emulator
+
+```bash
+adb devices
+```
+
+Expected output when a device is ready:
+
+```
+List of devices attached
+emulator-5554   device
+```
+
+If your physical device does not appear:
+
+1. Enable **USB Debugging** on the device (**Settings → Developer Options → USB Debugging**).
+2. Change the USB mode to **File Transfer** (MTP) rather than Charging Only.
+3. Accept the RSA key fingerprint prompt that appears on the device screen the first time you connect.
+
+### Restart ADB if devices are not detected
+
+```bash
+adb kill-server
+adb start-server
+adb devices
+```
+
+---
+
+## Watchman (macOS only, optional)
+
+Watchman is a file-watching service developed by Meta. React Native's Metro bundler can use it to track file changes more efficiently on macOS.
+
+```bash
+brew install watchman
+```
+
+<Note>
+Watchman is optional on macOS and not required on Linux or Windows. Metro falls back to its built-in file watcher if Watchman is not installed.
+</Note>
+
+---
+
+## Verify the full setup
+
+Run the React Native environment doctor to check that all required tools are correctly configured:
+
+```bash
+npx react-native doctor
+```
+
+This command checks for Node.js, JDK, Android SDK, `ANDROID_HOME`, and connected devices. Address any issues it reports before proceeding to the [Quickstart](/quickstart).
+
+<Tip>
+You can also run `npx @react-native-community/cli doctor` if the short form does not resolve correctly in your environment.
+</Tip>
+
+---
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="`adb: command not found`">
+    `adb` is not on your `PATH`. Make sure `$ANDROID_HOME/platform-tools` is added to your `PATH` variable and that you have reloaded your shell profile.
+
+    ```bash
+    export PATH=$PATH:$ANDROID_HOME/platform-tools
+    source ~/.zshrc
+    adb --version
+    ```
+  </Accordion>
+
+  <Accordion title="`ANDROID_HOME` is set but Android Studio can't find the SDK">
+    Open Android Studio and go to **Settings → Languages & Frameworks → Android SDK**. Confirm that the **Android SDK Location** field matches the value of your `ANDROID_HOME` environment variable. If they differ, update your environment variable to match the path shown in Android Studio.
+  </Accordion>
+
+  <Accordion title="Gradle sync fails in Android Studio">
+    This usually means a required SDK package is missing or the JDK version is wrong.
+
+    1. Open `android/` in Android Studio.
+    2. Go to **Settings → Languages & Frameworks → Android SDK** and confirm the required SDK packages are installed.
+    3. Check **File → Project Structure → SDK Location** to verify the JDK path points to JDK 17.
+    4. Click **File → Sync Project with Gradle Files** and check the Build output for specific error messages.
+  </Accordion>
+
+  <Accordion title="Node.js version mismatch error from npm install">
+    The `engines` field in `package.json` requires Node.js `>= 22.11.0`. If you see a version mismatch warning or error:
+
+    ```bash
+    nvm install 22
+    nvm use 22
+    node --version   # should print v22.11.0 or higher
+    npm install
+    ```
+  </Accordion>
+
+  <Accordion title="Java version mismatch — Gradle requires JDK 17">
+    If Gradle reports an incompatible JDK, verify which Java version is active:
+
+    ```bash
+    java -version
+    echo $JAVA_HOME
+    ```
+
+    If the output does not show version 17, update `JAVA_HOME` to point to your JDK 17 installation and reload your shell.
+  </Accordion>
+
+  <Accordion title="Emulator is slow or crashes">
+    Enable hardware acceleration for the emulator:
+
+    - **macOS / Linux**: Ensure **Intel HAXM** or **Android Emulator Hypervisor Driver** is installed via the SDK Manager under **SDK Tools**.
+    - **Windows**: Enable **Hyper-V** or install **HAXM** from the SDK Manager.
+
+    Also make sure you are using an **x86_64** system image rather than an ARM image for faster emulation on x86 host machines.
+  </Accordion>
+
+  <Accordion title="Metro bundler fails with `SERVER_ENDPOINT` not found">
+    Space7 uses `react-native-dotenv` to load environment variables. The `.env` file must exist in the project root and must define `SERVER_ENDPOINT`.
+
+    ```bash
+    echo 'SERVER_ENDPOINT=http://192.168.1.100:3000' > .env
+    ```
+
+    Then restart Metro with the cache cleared:
+
+    ```bash
+    npm run dev -- --reset-cache
+    ```
+  </Accordion>
+</AccordionGroup>

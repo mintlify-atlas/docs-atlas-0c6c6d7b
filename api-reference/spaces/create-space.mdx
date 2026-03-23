@@ -1,0 +1,120 @@
+---
+title: "Create a Space"
+description: "Create a new space with a title, description, visibility, and hashtags."
+---
+
+## Overview
+
+Creates a new space owned by the authenticated user. You must provide a title, description, and at least one hashtag. Visibility defaults to `"public"` if not specified.
+
+## Endpoint
+
+```
+POST /api/spaces
+```
+
+<Note>Requires authentication. Include a Bearer token in the `Authorization` header.</Note>
+
+## Request
+
+### Body parameters
+
+<ParamField body="title" type="string" required>
+  The display title for the space.
+</ParamField>
+
+<ParamField body="description" type="string" required>
+  A short description of what the space is about.
+</ParamField>
+
+<ParamField body="visibility" type="string">
+  Controls who can find and join the space. Accepted values: `"public"` or `"private"`. Defaults to `"public"`.
+</ParamField>
+
+<ParamField body="hashtags" type="string[]" required>
+  An array of hashtag strings to tag the space. Used for discovery and search.
+</ParamField>
+
+## Response
+
+Returns the newly created `Space` object.
+
+<ResponseField name="space_id" type="string">
+  Unique identifier assigned to the new space.
+</ResponseField>
+
+<ResponseField name="title" type="string">
+  The title you provided.
+</ResponseField>
+
+<ResponseField name="description" type="string">
+  The description you provided.
+</ResponseField>
+
+<ResponseField name="visibility" type="string">
+  The visibility of the created space: `"public"` or `"private"`.
+</ResponseField>
+
+<ResponseField name="creator" type="object">
+  The authenticated user who created the space.
+
+  <Expandable title="creator properties">
+    <ResponseField name="user_id" type="string">
+      Unique identifier of the creator.
+    </ResponseField>
+
+    <ResponseField name="username" type="string">
+      Username of the creator.
+    </ResponseField>
+
+    <ResponseField name="profile_picture" type="string">
+      URL of the creator's profile picture.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<ResponseField name="participant_count" type="number">
+  Number of participants. Typically `1` immediately after creation.
+</ResponseField>
+
+<ResponseField name="tags" type="array">
+  Tags derived from the `hashtags` you provided.
+
+  <Expandable title="tag properties">
+    <ResponseField name="tag_id" type="number">
+      Unique identifier of the tag.
+    </ResponseField>
+
+    <ResponseField name="tag_name" type="string">
+      Display name of the tag.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+## Example
+
+```typescript TypeScript
+import { createSpace } from "./api/Spaces";
+
+const newSpace = await createSpace({
+  title: "TypeScript Tips",
+  description: "A space for sharing TypeScript patterns and best practices.",
+  visibility: "public",
+  hashtags: ["typescript", "programming", "webdev"],
+});
+
+console.log(newSpace);
+// {
+//   space_id: "new001",
+//   title: "TypeScript Tips",
+//   description: "A space for sharing TypeScript patterns and best practices.",
+//   visibility: "public",
+//   creator: { user_id: "u1", username: "alice", profile_picture: "https://..." },
+//   participant_count: 1,
+//   tags: [
+//     { tag_id: 10, tag_name: "typescript" },
+//     { tag_id: 11, tag_name: "programming" },
+//     { tag_id: 12, tag_name: "webdev" }
+//   ]
+// }
+```

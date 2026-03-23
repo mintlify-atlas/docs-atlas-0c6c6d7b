@@ -1,0 +1,97 @@
+---
+title: "Log In"
+description: "Authenticate with email and password to receive a JWT token."
+---
+
+## Overview
+
+Authenticates an existing user with their email and password. On success, returns a JWT token along with basic user information.
+
+## Endpoint
+
+```
+POST /api/auth/login
+```
+
+## Request
+
+### Headers
+
+| Header | Value |
+|---|---|
+| Content-Type | application/json |
+
+### Body parameters
+
+<ParamField body="email" type="string" required>
+  The email address associated with the account.
+</ParamField>
+
+<ParamField body="password" type="string" required>
+  The account password.
+</ParamField>
+
+## Response
+
+### Success
+
+<ResponseField name="token" type="string">
+  A JWT token to use for authenticated requests.
+</ResponseField>
+
+<ResponseField name="user.user_id" type="string">
+  The unique identifier for the authenticated user.
+</ResponseField>
+
+<ResponseField name="user.username" type="string">
+  The display name of the authenticated user.
+</ResponseField>
+
+<ResponseField name="user.profile_picture" type="string">
+  URL of the user's profile picture.
+</ResponseField>
+
+### Error
+
+<ResponseField name="error" type="string">
+  Human-readable error message describing why login failed.
+</ResponseField>
+
+## Example
+
+```typescript TypeScript
+type LoginResponse = {
+  token: string;
+  user: {
+    user_id: string;
+    username: string;
+    profile_picture: string;
+  };
+};
+
+const API = process.env.SERVER_ENDPOINT ?? "";
+
+const login = async (
+  email: string,
+  password: string,
+): Promise<LoginResponse> => {
+  const res = await fetch(`${API}/api/auth/login`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      email,
+      password,
+    }),
+  });
+
+  const data = await res.json();
+
+  if (!res.ok) {
+    throw new Error(data.error || "Login failed");
+  }
+
+  return data;
+};
+```

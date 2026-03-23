@@ -1,0 +1,115 @@
+---
+title: Space
+description: The Space screen is the chat room for a single topic. Send text and media, appreciate messages, and follow the conversation in real time via Socket.IO.
+---
+
+The Space screen opens when you tap a space card anywhere in the app. It replaces the tab navigator for the duration of your visit, then returns you to the tab navigator when you navigate back.
+
+<Note>
+  The Space screen is rendered outside the bottom tab bar. While you are inside a space, the tab bar is hidden.
+</Note>
+
+## Header
+
+The header contains:
+
+- **Back arrow** (yellow, top-left) — tap to leave the space and return to the tab navigator
+- **Space7 logo** — centred wordmark
+- **Sort menu** (ellipsis icon, top-right) — tap to change the message sort order
+
+### Space details
+
+Below the header, the screen shows the space title, description, and creator avatar and username before the message list begins.
+
+## Message list
+
+Messages are displayed in a `ScrollView` with pull-to-refresh support. Each message card shows:
+
+- **Sender username** (`@handle`)
+- **Timestamp** — localised to the device's locale, right-aligned
+- **Text content** — if present
+- **Media** — image, video, or audio attachment (see below)
+- **Appreciation button** — thumbs-up with a count
+- **Delete button** — visible only on your own messages
+
+### Sorting messages
+
+Tap the ellipsis icon in the header to open the sort modal. Two options are available:
+
+| Option | Behaviour |
+|--------|-----------|
+| **Recent** | Newest messages first (default) |
+| **Top** | Most appreciated messages first |
+
+Changing the sort order re-fetches messages from the API.
+
+## Sending a message
+
+<Steps>
+  <Step title="Type your message">
+    Tap the text input at the bottom of the screen and type your message.
+  </Step>
+  <Step title="Attach media (optional)">
+    Tap the **Media** button to the left of the text input to open the attachment picker. Choose **Image**, **Video**, or **Audio**.
+
+    A preview of the selected file appears above the compose bar. Tap **Remove** in the preview to deselect it before sending.
+  </Step>
+  <Step title="Tap Send">
+    Tap the yellow **Send** button. The button changes to *Sending…* and is disabled while the upload is in progress.
+
+    The message is delivered to the REST API, then broadcast to other participants in real time over Socket.IO.
+  </Step>
+</Steps>
+
+<Warning>
+  You must type at least one character or attach a file before sending. Tapping **Send** with an empty compose bar shows an inline error: *Type a message or attach media first*.
+</Warning>
+
+## Media attachments
+
+<CardGroup cols={3}>
+  <Card title="Image" icon="image">
+    Displayed inline at 180 px height. Tap the image to toggle between collapsed (180 px, cover crop) and expanded (320 px, contain) views.
+  </Card>
+  <Card title="Video" icon="video">
+    Rendered with native playback controls at 220 px height. Videos start paused.
+  </Card>
+  <Card title="Audio" icon="music">
+    Shows a Play/Pause button, a `MM:SS / MM:SS` progress display, and a progress bar. Tap **Play** to start, tap **Pause** to stop. Playback restarts from the beginning if the file has ended.
+  </Card>
+</CardGroup>
+
+## Appreciating a message
+
+Tap the **👍 {count}** button on any message to toggle your appreciation. The count updates immediately in your local state and the change is broadcast to all participants via Socket.IO so everyone sees the updated count in real time.
+
+## Deleting your own message
+
+<Steps>
+  <Step title="Tap Delete">
+    The red **Delete** button appears only on messages you sent. Tap it to open a confirmation modal.
+  </Step>
+  <Step title="Confirm deletion">
+    Tap **Delete** in the modal to permanently remove the message. Tap **Cancel** to dismiss without deleting.
+  </Step>
+</Steps>
+
+<Warning>
+  Deletion is permanent and cannot be undone.
+</Warning>
+
+## Real-time updates via Socket.IO
+
+When you enter a space, the client:
+
+1. Connects to the Socket.IO server
+2. Joins the space room (`joinSpace`)
+3. Subscribes to two events:
+   - **`onReceiveMessage`** — prepends new messages to the top of the list
+   - **`onMessageAppreciated`** — updates the appreciation count on the relevant message
+
+When you leave the space (back button or Android hardware back), the client leaves the room and disconnects the socket.
+
+## Back navigation
+
+Tap the back arrow in the header or press the Android hardware back button to leave the space. This sets `topicId` to `null` in `TopicContext`, which unmounts the Space screen and restores the bottom tab navigator.

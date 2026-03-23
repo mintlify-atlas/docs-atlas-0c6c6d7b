@@ -1,0 +1,105 @@
+---
+title: "Get Notifications"
+description: "Retrieve a paginated list of notifications for the authenticated user."
+---
+
+## Overview
+
+Returns a paginated list of notifications for the currently authenticated user, along with the total count of unread notifications.
+
+## Endpoint
+
+```
+GET /api/notifications
+```
+
+<Note>Requires authentication</Note>
+
+## Request
+
+### Query parameters
+
+<ParamField query="page" type="number">
+  Page number for pagination. Defaults to `1`.
+</ParamField>
+
+<ParamField query="limit" type="number">
+  Number of notifications to return per page. Defaults to `30`.
+</ParamField>
+
+## Response
+
+Returns a `NotificationsResponse` object.
+
+<ResponseField name="notifications" type="Notification[]">
+  Array of notification objects.
+
+  <Expandable title="Notification">
+    <ResponseField name="id" type="number">
+      Unique identifier for the notification.
+    </ResponseField>
+    <ResponseField name="user_id" type="string">
+      Identifier of the user this notification belongs to.
+    </ResponseField>
+    <ResponseField name="type" type="string">
+      The category or type of notification (e.g. `"like"`, `"mention"`).
+    </ResponseField>
+    <ResponseField name="message" type="string">
+      Human-readable description of the notification event.
+    </ResponseField>
+    <ResponseField name="reference_id" type="string">
+      Identifier of the resource associated with the notification (e.g. a message or space ID).
+    </ResponseField>
+    <ResponseField name="is_read" type="boolean">
+      Whether the notification has been read by the user.
+    </ResponseField>
+    <ResponseField name="created_at" type="string">
+      ISO 8601 timestamp of when the notification was created.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<ResponseField name="total" type="number">
+  Total number of notifications for the user.
+</ResponseField>
+
+<ResponseField name="page" type="number">
+  Current page number.
+</ResponseField>
+
+<ResponseField name="totalPages" type="number">
+  Total number of pages available.
+</ResponseField>
+
+<ResponseField name="unreadCount" type="number">
+  Total number of unread notifications across all pages.
+</ResponseField>
+
+## Example
+
+```typescript TypeScript
+import { fetchWithAuth } from "./fetchWithAuth";
+
+async function getNotifications(
+  page: number = 1,
+  limit: number = 30,
+) {
+  const res = await fetchWithAuth(
+    `/api/notifications?page=${page}&limit=${limit}`,
+    {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    },
+  );
+
+  const data = await res.json();
+
+  if (!res.ok) {
+    throw new Error(data.error || "Failed to fetch notifications");
+  }
+
+  return data; // NotificationsResponse
+}
+```

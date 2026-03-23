@@ -1,0 +1,71 @@
+---
+title: Home
+description: The Home screen is your starting point in Space7. It surfaces trending and recommended spaces, and lets you search for any topic, user, or post.
+---
+
+The Home screen loads immediately after you sign in. It displays two curated feeds — **Trending Topics** and **Recommended for you** — and provides a search bar that filters both feeds in real time.
+
+## Layout overview
+
+<CardGroup cols={2}>
+  <Card title="Trending Topics" icon="fire">
+    A horizontally scrollable row of fixed-width space cards (300 px each) showing the most active spaces right now.
+  </Card>
+  <Card title="Recommended for you" icon="star">
+    A full-width vertical list of space cards personalised to your activity, rendered below the trending row.
+  </Card>
+</CardGroup>
+
+The screen is wrapped in a `ScrollView` with pull-to-refresh support. Pulling down reloads both feeds simultaneously.
+
+## Space cards
+
+Each card shows:
+
+- **Title** — truncated to 35 characters in the trending row, 45 in the recommended list
+- **Description** — truncated to 55 or 45 characters respectively, with an ellipsis when clipped
+- **Author** — displayed as `@username`
+- **Participant count** — shown with a user icon to the right of the author line
+- **Hashtags** — a horizontally scrollable row of coloured pill badges below the main content
+
+Cards cycle through five background colours (yellow, pink, cyan, purple, green) based on their position in the list.
+
+## Searching for spaces
+
+The search bar sits inside the blue header, below the Space7 logo.
+
+<Steps>
+  <Step title="Tap the search bar">
+    Tap the text input labelled *Search topics, users, or posts…*. The border thickens to indicate focus.
+  </Step>
+  <Step title="Type your query">
+    As soon as you enter at least one character, the Home feed is replaced by the `SearchScreen` component, which queries the API and returns two result groups:
+
+    - **General Search Results** — spaces matching the title or description
+    - **Tag Search Results** — spaces matched by hashtag
+
+    Both groups update on every keystroke.
+  </Step>
+  <Step title="Tap a result">
+    Tap any result row to open that space. This sets the global `topicId` and navigates you to the [Space screen](/screens/space).
+  </Step>
+  <Step title="Clear the query">
+    Delete all text in the input to dismiss the search results and return to the trending/recommended feeds.
+  </Step>
+</Steps>
+
+<Note>
+  The arrow-right button inside the search bar is a visual affordance only — search results appear automatically as you type. You do not need to press it to trigger a search.
+</Note>
+
+## Entering a space
+
+Tap anywhere on a space card to open it. The app sets `topicId` in `TopicContext`, which replaces the tab navigator with the [Space screen](/screens/space).
+
+## Notifications
+
+Tap the bell icon in the top-right corner of the header to open the Notifications overlay. Tapping the back arrow inside Notifications returns you to the Home screen.
+
+## Navigation
+
+Home is the default tab in the bottom tab bar (home icon, purple when active). On Android, pressing the hardware back button from the **New Topic**, **My Discussions**, or **My Profile** tabs navigates back to Home.

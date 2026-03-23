@@ -1,0 +1,40 @@
+---
+title: "Update Username"
+description: "Update the display name for the authenticated user."
+---
+
+## Overview
+
+Updates the username of the currently authenticated user.
+
+## Endpoint
+
+```
+PUT /api/profile/username
+```
+
+<Note>Requires authentication. Requests are made with a Bearer token via the `Authorization` header.</Note>
+
+## Request
+
+### Body parameters
+
+<ParamField body="username" type="string" required>
+  The new username to set for the account.
+</ParamField>
+
+## Response
+
+<ResponseField name="message" type="string">
+  A confirmation message indicating the username was updated successfully.
+</ResponseField>
+
+## Example
+
+```typescript TypeScript
+import { updateUsername } from "./api/Profile";
+
+const response = await updateUsername({ username: "new_username" });
+
+console.log(response.message);
+```

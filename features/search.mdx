@@ -1,0 +1,119 @@
+---
+title: Search
+description: Find public Spaces using full-text search or hashtag-based filtering.
+---
+
+Space7's search feature lets you discover public Spaces by keyword or hashtag without signing in. Each query runs two searches in parallel and returns deduplicated, categorised results.
+
+## How search works
+
+When you type a query in the home screen search bar, the `SearchAPI` function fires two requests simultaneously:
+
+1. **Full-text search** — matches Spaces whose `title` or `description` contain the query string.
+2. **Tag search** — finds Spaces whose `tags` array contains a tag that matches the query exactly.
+
+Both result sets are filtered to **public Spaces only** before being returned to the UI. Private Spaces never appear in search results.
+
+```typescript
+export const SearchAPI = async (
+  query: string,
+): Promise<{
+  tagSearchResults: SearchResult[];
+  generalSearchResults: SearchResult[];
+}> => {
+  const trimmedQuery = query.trim();
+
+  if (!trimmedQuery) {
+    return { tagSearchResults: [], generalSearchResults: [] };
+  }
+
+  const tagSearchResults = await searchSpacesByTag(trimmedQuery);
+  const generalSearchResults = await searchSpaces(trimmedQuery);
+
+  // Only public spaces are surfaced
+  const onlyPublicTagResults = tagSearchResults.filter(
+    (space) => !space.visibility || space.visibility === "public",
+  );
+  const onlyPublicGeneralResults = generalSearchResults.filter(
+    (space) => !space.visibility || space.visibility === "public",
+  );
+
+  return {
+    tagSearchResults: onlyPublicTagResults,
+    generalSearchResults: onlyPublicGeneralResults,
+  };
+};
+```
+
+<Info>
+  Passing an empty or whitespace-only string to `SearchAPI` short-circuits both network calls and returns empty arrays immediately.
+</Info>
+
+## API endpoints
+
+<AccordionGroup>
+  <Accordion title="Full-text search — GET /api/spaces/search">
+    Searches Space titles and descriptions for the provided query string.
+
+    ```bash
+    GET /api/spaces/search?q=typescript
+    ```
+
+    The `q` parameter is URL-encoded before the request is made. No authentication is required. Returns an array of `SearchResult` objects.
+  </Accordion>
+  <Accordion title="Tag search — GET /api/spaces/tag/:tag">
+    Finds Spaces that have a tag matching the given string exactly.
+
+    ```bash
+    GET /api/spaces/tag/typescript
+    ```
+
+    No authentication is required. Returns an array of `SearchResult` objects. The tag value is passed as a path segment, not a query parameter.
+  </Accordion>
+</AccordionGroup>
+
+## SearchResult type
+
+Both endpoints return the same `SearchResult` shape, which mirrors the `Space` type:
+
+```typescript
+type SearchResult = {
+  space_id: string;
+  title: string;
+  description: string;
+  visibility?: "public" | "private";
+  creator: {
+    user_id: string;
+    username: string;
+    profile_picture: string;
+  };
+  participant_count: number;
+  tags: {
+    tag_id: number;
+    tag_name: string;
+  }[];
+};
+```
+
+| Field | Description |
+|---|---|
+| `space_id` | Unique Space identifier, used to navigate into the Space |
+| `title` | Display name of the Space |
+| `description` | Topic description |
+| `visibility` | Always `"public"` in search results |
+| `creator` | Author details including avatar URL |
+| `participant_count` | Current number of participants |
+| `tags` | All hashtags attached to the Space |
+
+## Interpreting results in the UI
+
+The search screen presents two labelled sections:
+
+- **Tag results** — Spaces that have a tag matching your query. These tend to be the most relevant because tag matching is exact.
+- **General results** — Spaces whose title or description contains your query. Broader but useful for discovering Spaces you might not know the exact tag for.
+
+Tapping any result card navigates you into that Space. If the Space is public you join automatically when you send your first message.
+
+<Tip>
+  To search by hashtag specifically, type the tag name without a `#` prefix — for example, type `gaming` rather than `#gaming`. The tag search endpoint matches against the stored `tag_name` value directly.
+</Tip>

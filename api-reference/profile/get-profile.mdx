@@ -1,0 +1,83 @@
+---
+title: "Get Profile"
+description: "Retrieve the authenticated user's full profile, including stats."
+---
+
+## Overview
+
+Returns the complete profile for the currently authenticated user, including account details and aggregated activity stats.
+
+## Endpoint
+
+```
+GET /api/profile/me
+```
+
+<Note>Requires authentication. Requests are made with a Bearer token via the `Authorization` header.</Note>
+
+## Request
+
+This endpoint takes no request body or query parameters.
+
+## Response
+
+<ResponseField name="user_id" type="string" required>
+  Unique identifier for the user.
+</ResponseField>
+
+<ResponseField name="username" type="string" required>
+  The user's display name.
+</ResponseField>
+
+<ResponseField name="email" type="string" required>
+  The user's email address.
+</ResponseField>
+
+<ResponseField name="bio" type="string" required>
+  The user's profile biography.
+</ResponseField>
+
+<ResponseField name="profile_picture" type="string" required>
+  URL of the user's profile picture.
+</ResponseField>
+
+<ResponseField name="is_verified" type="boolean" required>
+  Whether the user's account is verified.
+</ResponseField>
+
+<ResponseField name="created_at" type="string" required>
+  ISO 8601 timestamp of when the account was created.
+</ResponseField>
+
+<ResponseField name="updated_at" type="string" required>
+  ISO 8601 timestamp of the last profile update.
+</ResponseField>
+
+<ResponseField name="stats" type="object" required>
+  Aggregated activity statistics for the user.
+  <Expandable title="properties">
+    <ResponseField name="spaces_created" type="number">
+      Total number of spaces the user has created.
+    </ResponseField>
+    <ResponseField name="spaces_participated" type="number">
+      Total number of spaces the user has participated in.
+    </ResponseField>
+    <ResponseField name="total_words_contributed" type="number">
+      Total word count contributed across all spaces.
+    </ResponseField>
+    <ResponseField name="total_appreciations_received" type="number">
+      Total number of appreciations received from other users.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+## Example
+
+```typescript TypeScript
+import { getProfile } from "./api/Profile";
+
+const profile = await getProfile();
+
+console.log(profile.username);
+console.log(profile.stats.spaces_created);
+```

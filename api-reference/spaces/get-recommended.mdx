@@ -1,0 +1,105 @@
+---
+title: "Get Recommended Spaces"
+description: "Retrieve a personalized list of recommended public spaces for the authenticated user."
+---
+
+## Overview
+
+Returns a list of spaces recommended for the currently authenticated user. Only public spaces are returned. Recommendations are based on the user's activity and preferences.
+
+## Endpoint
+
+```
+GET /api/spaces/recommended
+```
+
+<Note>Requires authentication. Include a Bearer token in the `Authorization` header.</Note>
+
+## Request
+
+### Query parameters
+
+<ParamField query="limit" type="number">
+  Maximum number of spaces to return. Defaults to `10`.
+</ParamField>
+
+## Response
+
+Returns an array of `Space` objects. Only public spaces are included.
+
+<ResponseField name="space_id" type="string">
+  Unique identifier for the space.
+</ResponseField>
+
+<ResponseField name="title" type="string">
+  Display title of the space.
+</ResponseField>
+
+<ResponseField name="description" type="string">
+  Short description of the space.
+</ResponseField>
+
+<ResponseField name="visibility" type="string">
+  Visibility of the space. Always `"public"` for results from this endpoint.
+</ResponseField>
+
+<ResponseField name="creator" type="object">
+  The user who created the space.
+
+  <Expandable title="creator properties">
+    <ResponseField name="user_id" type="string">
+      Unique identifier of the creator.
+    </ResponseField>
+
+    <ResponseField name="username" type="string">
+      Username of the creator.
+    </ResponseField>
+
+    <ResponseField name="profile_picture" type="string">
+      URL of the creator's profile picture.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<ResponseField name="participant_count" type="number">
+  Number of participants currently in the space.
+</ResponseField>
+
+<ResponseField name="tags" type="array">
+  Tags associated with the space.
+
+  <Expandable title="tag properties">
+    <ResponseField name="tag_id" type="number">
+      Unique identifier of the tag.
+    </ResponseField>
+
+    <ResponseField name="tag_name" type="string">
+      Display name of the tag.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+## Example
+
+```typescript TypeScript
+import { getRecommendedSpaces } from "./api/Spaces";
+
+// Fetch the default 10 recommended spaces
+const spaces = await getRecommendedSpaces();
+
+// Fetch up to 20 recommended spaces
+const moreSpaces = await getRecommendedSpaces({ limit: 20 });
+
+console.log(spaces);
+// [
+//   {
+//     space_id: "xyz789",
+//     title: "Design Systems",
+//     description: "A space for UI/UX designers",
+//     visibility: "public",
+//     creator: { user_id: "u2", username: "bob", profile_picture: "https://..." },
+//     participant_count: 18,
+//     tags: [{ tag_id: 3, tag_name: "design" }]
+//   }
+// ]
+```

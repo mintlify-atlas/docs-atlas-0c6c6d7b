@@ -1,0 +1,53 @@
+---
+title: "Mark Notification as Read"
+description: "Mark a single notification as read for the authenticated user."
+---
+
+## Overview
+
+Marks a specific notification as read. Use this when the user views or acknowledges an individual notification.
+
+## Endpoint
+
+```
+PUT /api/notifications/:id/read
+```
+
+<Note>Requires authentication</Note>
+
+## Request
+
+### Path parameters
+
+<ParamField path="id" type="number" required>
+  The unique identifier of the notification to mark as read.
+</ParamField>
+
+## Response
+
+<ResponseField name="message" type="string">
+  A confirmation string indicating the notification was successfully marked as read.
+</ResponseField>
+
+## Example
+
+```typescript TypeScript
+import { fetchWithAuth } from "./fetchWithAuth";
+
+async function markNotificationAsRead(id: number): Promise<{ message: string }> {
+  const res = await fetchWithAuth(`/api/notifications/${id}/read`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+
+  const data = await res.json();
+
+  if (!res.ok) {
+    throw new Error(data.error || "Failed to mark notification as read");
+  }
+
+  return data; // { message: string }
+}
+```

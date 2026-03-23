@@ -1,0 +1,50 @@
+---
+title: "Join a Space"
+description: "Join an existing space by its ID. Private spaces require an invite code."
+---
+
+## Overview
+
+Adds the authenticated user to the specified space. Public spaces can be joined without an invite code. Private spaces require a valid `invite_code`.
+
+## Endpoint
+
+```
+POST /api/spaces/:spaceId/join
+```
+
+<Note>Requires authentication. Include a Bearer token in the `Authorization` header.</Note>
+
+## Request
+
+### Path parameters
+
+<ParamField path="spaceId" type="string" required>
+  The unique ID of the space to join.
+</ParamField>
+
+### Body parameters
+
+<ParamField body="invite_code" type="string">
+  An invite code for the space. Required when joining a private space. Optional for public spaces.
+</ParamField>
+
+## Response
+
+<ResponseField name="message" type="string">
+  A confirmation message indicating the user successfully joined the space.
+</ResponseField>
+
+## Example
+
+```typescript TypeScript
+import { joinSpace } from "./api/Spaces";
+
+// Join a public space
+const result = await joinSpace("abc123");
+console.log(result.message); // "Successfully joined the space"
+
+// Join a private space with an invite code
+const privateResult = await joinSpace("prv001", { invite_code: "INVITE-XYZ" });
+console.log(privateResult.message); // "Successfully joined the space"
+```

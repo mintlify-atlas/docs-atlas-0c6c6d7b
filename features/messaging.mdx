@@ -1,0 +1,178 @@
+---
+title: Messaging
+description: Send text and media messages inside a Space, appreciate contributions, and receive updates in real time.
+---
+
+Every Space has a live message thread. You can contribute text, attach images, videos, or audio, and appreciate messages from other participants. All activity is delivered in real time via Socket.IO so you never need to manually refresh to see new content.
+
+## Message structure
+
+```typescript
+type Message = {
+  message_id: string;
+  space_id: string;
+  sender_id: string;
+  content: string;
+  media_url: string | null;
+  media_type: "image" | "video" | "audio" | null;
+  word_count: number;
+  sender: SpaceCreator;
+  likes: MessageLike[];
+  appreciation_count: number;
+  created_at: string;
+};
+
+type MessageLike = {
+  id: number;
+  user_id: string;
+};
+```
+
+| Field | Description |
+|---|---|
+| `message_id` | Unique identifier for the message |
+| `space_id` | The Space this message belongs to |
+| `sender_id` | `user_id` of the author |
+| `content` | Plain-text body of the message (may be empty if media-only) |
+| `media_url` | CDN URL of the attached file, or `null` |
+| `media_type` | `"image"`, `"video"`, `"audio"`, or `null` |
+| `word_count` | Server-computed word count of `content`, used for contribution stats |
+| `sender` | Embedded creator object with `username` and `profile_picture` |
+| `likes` | Array of users who have appreciated this message |
+| `appreciation_count` | Denormalised count of appreciations for fast display |
+| `created_at` | ISO-8601 timestamp |
+
+## Sending a text message
+
+<Steps>
+  <Step title="Type your message">
+    Tap the text input in the composer bar at the bottom of the Space and type your message.
+  </Step>
+  <Step title="Send">
+    Tap **Send**. The app calls `POST /api/messages/:spaceId` using `multipart/form-data`. The `content` field is trimmed before sending — whitespace-only messages are rejected.
+  </Step>
+  <Step title="Message appears instantly">
+    The sent message is prepended to the local list immediately, and simultaneously broadcast to all other participants via the `send_message` Socket.IO event.
+  </Step>
+</Steps>
+
+<Note>
+  Every message must contain either non-empty `content`, an attached media file, or both. Sending a completely empty message is blocked client-side before the API call is made.
+</Note>
+
+## Attaching media
+
+Tap **Media** in the composer bar to open the media picker sheet. You can attach one file per message.
+
+<Tabs>
+  <Tab title="Image">
+    Select **Image** in the picker sheet. The native document picker opens filtered to image files. The selected image is previewed in the composer as a thumbnail before sending. Once sent, recipients see the image inline and can tap it to toggle between a compact (180 px) and expanded (320 px) view.
+  </Tab>
+  <Tab title="Video">
+    Select **Video** in the picker sheet. The native document picker opens filtered to video files. A video preview is shown in the composer. Once sent, the video renders inline with native playback controls.
+  </Tab>
+  <Tab title="Audio">
+    Select **Audio** in the picker sheet. The native document picker opens filtered to audio files. Once sent, recipients see a custom audio player showing playback time and a scrubbing progress bar.
+  </Tab>
+</Tabs>
+
+The media file is sent as a `FormData` field alongside the optional `content` text:
+
+```typescript
+type SendMessagePayload = {
+  content?: string;
+  media?: {
+    uri: string;
+    name?: string;
+    type?: string;   // MIME type, e.g. "image/jpeg"
+  } | null;
+  media_type?: "image" | "video" | "audio";
+};
+```
+
+To remove a selected attachment before sending, tap **Remove** in the preview bar that appears above the composer.
+
+## Appreciating messages
+
+Tap the appreciation button (👍) on any message to toggle your appreciation. The `appreciation_count` updates immediately in the UI and the change is broadcast to all other participants via the `message_appreciated` Socket.IO event.
+
+```typescript
+// API call
+POST /api/messages/:spaceId/:messageId/appreciate
+
+// Response
+{ appreciated: boolean }
+```
+
+Calling the endpoint again on a message you have already appreciated **removes** your appreciation (toggle behaviour). The `appreciated` flag in the response tells you the resulting state.
+
+## Deleting your own messages
+
+You can delete any message you sent. The delete button is only shown when `message.sender_id === currentUser.user_id`.
+
+<Steps>
+  <Step title="Long-press or tap Delete">
+    Tap the **Delete** button on your message. A confirmation modal appears.
+  </Step>
+  <Step title="Confirm">
+    Tap **Delete** in the modal to confirm. The app calls `DELETE /api/messages/:spaceId/:messageId`.
+  </Step>
+  <Step title="Message removed">
+    The message is removed from the local list immediately. Other participants see it disappear on their next refresh.
+  </Step>
+</Steps>
+
+<Warning>
+  Message deletion is permanent. There is no undo.
+</Warning>
+
+## Real-time delivery via Socket.IO
+
+When you open a Space the app establishes a WebSocket connection authenticated with your session token, then emits `join_space` with the Space ID.
+
+```typescript
+// Socket events emitted by the client
+socket.emit("join_space", spaceId);
+socket.emit("send_message", { spaceId, message });
+socket.emit("message_appreciated", { spaceId, messageId, appreciated, userId });
+
+// Socket events received by the client
+socket.on("receive_message", (payload) => { /* prepend message */ });
+socket.on("message_appreciated", (payload) => { /* update count */ });
+```
+
+The socket disconnects and the room is left when you navigate away from the Space.
+
+<Info>
+  The socket uses the `websocket` transport exclusively — long-polling is not used.
+</Info>
+
+## Sorting messages
+
+Tap the overflow menu (**…**) in the Space header to change the sort order.
+
+| Sort option | Behaviour |
+|---|---|
+| **Recent** (default) | Messages ordered newest-first |
+| **Top** | Messages ordered by `appreciation_count` descending |
+
+Changing the sort order reloads the message list from `GET /api/messages/:spaceId?sort=recent` or `?sort=most_appreciated`.
+
+## Pagination
+
+The messages API is paginated. Responses include metadata you can use to load additional pages:
+
+```typescript
+type MessagesResponse = {
+  messages: Message[];
+  total: number;       // total message count in the Space
+  page: number;        // current page (1-indexed)
+  totalPages: number;  // total number of pages
+};
+```
+
+The default page size is **50** messages. Specify `page` and `limit` as query parameters to paginate:
+
+```bash
+GET /api/messages/:spaceId?sort=recent&page=2&limit=50
+```

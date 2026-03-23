@@ -1,0 +1,142 @@
+---
+title: "Send a Message"
+description: "Post a new message to a space, optionally including media."
+---
+
+## Overview
+
+Sends a new message to the specified space. Messages can contain text content, a media attachment, or both. At least one of `content` or `media` must be provided.
+
+## Endpoint
+
+```
+POST /api/messages/:spaceId
+```
+
+<Note>Requires authentication</Note>
+
+## Request
+
+### Path parameters
+
+<ParamField path="spaceId" type="string" required>
+  The unique identifier of the space to post the message to.
+</ParamField>
+
+### Body parameters
+
+The request body must be sent as `multipart/form-data`.
+
+<ParamField body="content" type="string">
+  The text content of the message. Required if no media is attached.
+</ParamField>
+
+<ParamField body="media" type="file">
+  A media file to attach to the message. Accepted types: image, video, audio. Required if no `content` is provided.
+</ParamField>
+
+<ParamField body="media_type" type="string">
+  The type of media being uploaded. Accepted values: `"image"`, `"video"`, `"audio"`. Required when `media` is provided.
+</ParamField>
+
+<Note>
+  At least one of `content` or `media` must be included in the request. Sending a request with neither will result in an error.
+</Note>
+
+## Response
+
+Returns the created `Message` object.
+
+<ResponseField name="message_id" type="string">
+  Unique identifier for the newly created message.
+</ResponseField>
+
+<ResponseField name="space_id" type="string">
+  Identifier of the space the message was posted to.
+</ResponseField>
+
+<ResponseField name="sender_id" type="string">
+  Identifier of the user who sent the message.
+</ResponseField>
+
+<ResponseField name="content" type="string">
+  Text content of the message.
+</ResponseField>
+
+<ResponseField name="media_url" type="string | null">
+  URL of the uploaded media file, or `null` if no media was attached.
+</ResponseField>
+
+<ResponseField name="media_type" type="image | video | audio | null">
+  Type of the attached media, or `null` if no media was attached.
+</ResponseField>
+
+<ResponseField name="word_count" type="number">
+  Number of words in the message content.
+</ResponseField>
+
+<ResponseField name="sender" type="SpaceCreator">
+  Profile information of the message sender.
+</ResponseField>
+
+<ResponseField name="likes" type="MessageLike[]">
+  Array of likes on the message. Will be empty for a newly created message.
+</ResponseField>
+
+<ResponseField name="appreciation_count" type="number">
+  Total number of appreciations. Will be `0` for a newly created message.
+</ResponseField>
+
+<ResponseField name="created_at" type="string">
+  ISO 8601 timestamp of when the message was created.
+</ResponseField>
+
+## Example
+
+```typescript TypeScript
+import { fetchWithAuth } from "./fetchWithAuth";
+
+const sendMessage = async (
+  spaceId: string,
+  payload: {
+    content?: string;
+    media?: { uri: string; name?: string; type?: string } | null;
+    media_type?: "image" | "video" | "audio";
+  },
+) => {
+  if (!payload.content?.trim() && !payload.media) {
+    throw new Error("Message must have text or media");
+  }
+
+  const formData = new FormData();
+
+  if (payload.content?.trim()) {
+    formData.append("content", payload.content.trim());
+  }
+
+  if (payload.media) {
+    formData.append("media", {
+      uri: payload.media.uri,
+      name: payload.media.name ?? "upload",
+      type: payload.media.type ?? "application/octet-stream",
+    } as never);
+  }
+
+  if (payload.media_type) {
+    formData.append("media_type", payload.media_type);
+  }
+
+  const res = await fetchWithAuth(`/api/messages/${spaceId}`, {
+    method: "POST",
+    body: formData,
+  });
+
+  const data = await res.json();
+
+  if (!res.ok) {
+    throw new Error(data.error || "Failed to send message");
+  }
+
+  return data; // Message
+};
+```

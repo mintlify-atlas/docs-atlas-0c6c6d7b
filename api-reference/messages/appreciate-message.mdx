@@ -1,0 +1,63 @@
+---
+title: "Appreciate a Message"
+description: "Toggle appreciation (like/unlike) on a message in a space."
+---
+
+## Overview
+
+Toggles the current user's appreciation on a specific message. If the user has not yet appreciated the message, this adds an appreciation. If the user has already appreciated it, this removes it.
+
+## Endpoint
+
+```
+POST /api/messages/:spaceId/:messageId/appreciate
+```
+
+<Note>Requires authentication</Note>
+
+## Request
+
+### Path parameters
+
+<ParamField path="spaceId" type="string" required>
+  The unique identifier of the space the message belongs to.
+</ParamField>
+
+<ParamField path="messageId" type="string" required>
+  The unique identifier of the message to appreciate or un-appreciate.
+</ParamField>
+
+## Response
+
+<ResponseField name="appreciated" type="boolean">
+  `true` if the message is now appreciated by the current user, `false` if the appreciation was removed.
+</ResponseField>
+
+## Example
+
+```typescript TypeScript
+import { fetchWithAuth } from "./fetchWithAuth";
+
+const toggleMessageAppreciation = async (
+  spaceId: string,
+  messageId: string,
+): Promise<{ appreciated: boolean }> => {
+  const res = await fetchWithAuth(
+    `/api/messages/${spaceId}/${messageId}/appreciate`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    },
+  );
+
+  const data = await res.json();
+
+  if (!res.ok) {
+    throw new Error(data.error || "Failed to appreciate message");
+  }
+
+  return data; // { appreciated: boolean }
+};
+```

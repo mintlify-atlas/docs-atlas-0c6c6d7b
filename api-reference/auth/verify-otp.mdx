@@ -1,0 +1,81 @@
+---
+title: "Verify OTP"
+description: "Verify the OTP sent during signup to activate the account."
+---
+
+## Overview
+
+Verifies the one-time password (OTP) sent to a user's email address during signup. Successful verification activates the account.
+
+## Endpoint
+
+```
+POST /api/auth/verify-otp
+```
+
+## Request
+
+### Headers
+
+| Header | Value |
+|---|---|
+| Content-Type | application/json |
+
+### Body parameters
+
+<ParamField body="otp" type="string" required>
+  The one-time password received at the user's email address.
+</ParamField>
+
+<ParamField body="email" type="string" required>
+  The email address the OTP was sent to.
+</ParamField>
+
+## Response
+
+### Success
+
+<ResponseField name="status" type="number">
+  HTTP status code of the response (e.g. `200`).
+</ResponseField>
+
+<ResponseField name="...data" type="object">
+  Confirmation data returned by the server on successful verification.
+</ResponseField>
+
+### Error
+
+<ResponseField name="error" type="string">
+  Human-readable error message describing why OTP verification failed.
+</ResponseField>
+
+<Note>
+  This endpoint is used to complete account activation after [Sign Up](/api-reference/auth/signup). Submit the OTP exactly as received in the email.
+</Note>
+
+## Example
+
+```typescript TypeScript
+const API = process.env.SERVER_ENDPOINT ?? "";
+
+const verifyOTP = async (otp: string, email: string) => {
+  const res = await fetch(`${API}/api/auth/verify-otp`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      otp,
+      email,
+    }),
+  });
+
+  const data = await res.json();
+
+  if (!res.ok) {
+    throw new Error(data.error || "OTP verification failed");
+  }
+
+  return { status: res.status, ...data };
+};
+```

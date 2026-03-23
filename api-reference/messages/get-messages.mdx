@@ -1,0 +1,125 @@
+---
+title: "Get Messages"
+description: "Retrieve a paginated list of messages for a space."
+---
+
+## Overview
+
+Returns a paginated list of messages posted in a given space. Results can be sorted by most recent or most appreciated.
+
+## Endpoint
+
+```
+GET /api/messages/:spaceId
+```
+
+<Note>Requires authentication</Note>
+
+## Request
+
+### Path parameters
+
+<ParamField path="spaceId" type="string" required>
+  The unique identifier of the space to fetch messages from.
+</ParamField>
+
+### Query parameters
+
+<ParamField query="sort" type="string">
+  Sort order for messages. Accepted values: `"recent"` or `"most_appreciated"`. Defaults to `"recent"`.
+</ParamField>
+
+<ParamField query="page" type="number">
+  Page number for pagination. Defaults to `1`.
+</ParamField>
+
+<ParamField query="limit" type="number">
+  Number of messages to return per page. Defaults to `50`.
+</ParamField>
+
+## Response
+
+Returns a `MessagesResponse` object.
+
+<ResponseField name="messages" type="Message[]">
+  Array of message objects.
+
+  <Expandable title="Message">
+    <ResponseField name="message_id" type="string">
+      Unique identifier for the message.
+    </ResponseField>
+    <ResponseField name="space_id" type="string">
+      Identifier of the space the message belongs to.
+    </ResponseField>
+    <ResponseField name="sender_id" type="string">
+      Identifier of the user who sent the message.
+    </ResponseField>
+    <ResponseField name="content" type="string">
+      Text content of the message.
+    </ResponseField>
+    <ResponseField name="media_url" type="string | null">
+      URL of the attached media file, or `null` if no media.
+    </ResponseField>
+    <ResponseField name="media_type" type="image | video | audio | null">
+      Type of attached media, or `null` if no media.
+    </ResponseField>
+    <ResponseField name="word_count" type="number">
+      Number of words in the message content.
+    </ResponseField>
+    <ResponseField name="sender" type="SpaceCreator">
+      Profile information of the message sender.
+    </ResponseField>
+    <ResponseField name="likes" type="MessageLike[]">
+      Array of likes on the message. Each like contains `id` (number) and `user_id` (string).
+    </ResponseField>
+    <ResponseField name="appreciation_count" type="number">
+      Total number of appreciations (likes) the message has received.
+    </ResponseField>
+    <ResponseField name="created_at" type="string">
+      ISO 8601 timestamp of when the message was created.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<ResponseField name="total" type="number">
+  Total number of messages in the space.
+</ResponseField>
+
+<ResponseField name="page" type="number">
+  Current page number.
+</ResponseField>
+
+<ResponseField name="totalPages" type="number">
+  Total number of pages available.
+</ResponseField>
+
+## Example
+
+```typescript TypeScript
+import { fetchWithAuth } from "./fetchWithAuth";
+
+const getMessages = async (
+  spaceId: string,
+  options: { sort?: "recent" | "most_appreciated"; page?: number; limit?: number } = {},
+) => {
+  const sort = options.sort ?? "recent";
+  const page = options.page ?? 1;
+  const limit = options.limit ?? 50;
+  const query = `?sort=${sort}&page=${page}&limit=${limit}`;
+
+  const res = await fetchWithAuth(`/api/messages/${spaceId}${query}`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+
+  const data = await res.json();
+
+  if (!res.ok) {
+    throw new Error(data.error || "Failed to fetch messages");
+  }
+
+  return data; // MessagesResponse
+};
+```

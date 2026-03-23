@@ -1,0 +1,109 @@
+---
+title: "Get Trending Spaces"
+description: "Retrieve a list of trending public spaces."
+---
+
+## Overview
+
+Returns a list of trending spaces. Only public spaces are included in the response. No authentication is required.
+
+## Endpoint
+
+```
+GET /api/spaces/trending
+```
+
+<Info>No authentication required. This is a public endpoint.</Info>
+
+## Request
+
+### Query parameters
+
+<ParamField query="limit" type="number">
+  Maximum number of spaces to return. Defaults to `10`.
+</ParamField>
+
+<ParamField query="visibility" type="string">
+  Always set to `"public"`. Private spaces are never returned by this endpoint.
+</ParamField>
+
+## Response
+
+Returns an array of `Space` objects.
+
+<ResponseField name="space_id" type="string">
+  Unique identifier for the space.
+</ResponseField>
+
+<ResponseField name="title" type="string">
+  Display title of the space.
+</ResponseField>
+
+<ResponseField name="description" type="string">
+  Short description of the space.
+</ResponseField>
+
+<ResponseField name="visibility" type="string">
+  Visibility of the space. Always `"public"` for results from this endpoint.
+</ResponseField>
+
+<ResponseField name="creator" type="object">
+  The user who created the space.
+
+  <Expandable title="creator properties">
+    <ResponseField name="user_id" type="string">
+      Unique identifier of the creator.
+    </ResponseField>
+
+    <ResponseField name="username" type="string">
+      Username of the creator.
+    </ResponseField>
+
+    <ResponseField name="profile_picture" type="string">
+      URL of the creator's profile picture.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<ResponseField name="participant_count" type="number">
+  Number of participants currently in the space.
+</ResponseField>
+
+<ResponseField name="tags" type="array">
+  Tags associated with the space.
+
+  <Expandable title="tag properties">
+    <ResponseField name="tag_id" type="number">
+      Unique identifier of the tag.
+    </ResponseField>
+
+    <ResponseField name="tag_name" type="string">
+      Display name of the tag.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+## Example
+
+```typescript TypeScript
+import { getTrendingSpaces } from "./api/Spaces";
+
+// Fetch the default 10 trending spaces
+const spaces = await getTrendingSpaces();
+
+// Fetch up to 25 trending spaces
+const moreSpaces = await getTrendingSpaces({ limit: 25 });
+
+console.log(spaces);
+// [
+//   {
+//     space_id: "abc123",
+//     title: "Morning Standup",
+//     description: "Daily sync for remote teams",
+//     visibility: "public",
+//     creator: { user_id: "u1", username: "alice", profile_picture: "https://..." },
+//     participant_count: 42,
+//     tags: [{ tag_id: 1, tag_name: "work" }]
+//   }
+// ]
+```

@@ -1,0 +1,78 @@
+---
+title: My Profile
+description: View your avatar, bio, and contribution stats. Edit your username, bio, or profile picture, change your password, or delete your account.
+---
+
+My Profile is the fourth tab in the bottom bar (green user icon). It shows your public profile information, your contribution statistics, and a list of spaces you have created.
+
+## Profile header
+
+The header bar at the top of the screen contains:
+
+- **My Profile** title
+- **Menu button** (yellow, hamburger icon) — opens the Profile Actions modal
+- **Logout button** (pink) — signs you out immediately
+
+## Profile body
+
+Below the header, the screen displays a yellow banner with decorative sparkle icons and your avatar overlapping the banner edge.
+
+<CardGroup cols={2}>
+  <Card title="Avatar" icon="user">
+    A 150 × 150 px circular image. Displays your uploaded profile picture, or a default happy robot illustration if you have not set one.
+  </Card>
+  <Card title="Username" icon="at-sign">
+    Shown in large bold text below the avatar circle.
+  </Card>
+  <Card title="Bio" icon="align-left">
+    Rendered inside a yellow rounded card. If you have not added a bio, a placeholder prompt is shown instead.
+  </Card>
+  <Card title="Stats" icon="bar-chart">
+    Two stat tiles displayed side by side: **Created** (spaces you started, green tile) and **Participated** (spaces you joined, yellow tile).
+  </Card>
+</CardGroup>
+
+## Created spaces
+
+Below the stats, a `FlatList` shows all spaces you created, using the same coloured card format as the Home feed. Tap any card to enter that [Space](/screens/space).
+
+Pull down anywhere on the screen to refresh both the profile data and the spaces list.
+
+## Editing your profile
+
+Tap the menu (hamburger) button in the header to open the **Profile Actions** modal.
+
+<Steps>
+  <Step title="Open Profile Actions">
+    Tap the yellow menu button in the top-right of the header. A centred modal appears over a dimmed backdrop.
+  </Step>
+  <Step title="Choose an action">
+    The modal lists the following actions:
+
+    - **Change Username** — expands an inline text input. Type your new username and tap **Save Username**.
+    - **Change Bio** — expands a multiline text input. Edit your bio and tap **Save Bio**.
+    - **Change Profile Picture** — opens the system image picker immediately. Select an image (5 MB maximum). The profile picture is uploaded and the screen refreshes automatically.
+    - **Change Password** — expands two password inputs (current and new). Fill both fields and tap **Save Password**.
+    - **Logout** — signs you out and returns to the authentication screen.
+    - **Delete Account** — opens a native confirmation alert before permanently deleting your account and all associated data.
+  </Step>
+  <Step title="Save your changes">
+    Each edit action has its own save button. On success, a green confirmation message appears inside the modal and your profile refreshes in the background. On failure, a red error message is shown.
+  </Step>
+  <Step title="Close the modal">
+    Tap outside the modal card or press the Android hardware back button to dismiss without making changes.
+  </Step>
+</Steps>
+
+<Warning>
+  **Delete Account** is irreversible. The confirmation alert warns you that all account data will be permanently removed before you can proceed.
+</Warning>
+
+## Logging out
+
+You can log out in two ways:
+
+- Tap the **Logout** button in the profile header bar.
+- Open the Profile Actions modal and tap **Logout**.
+
+Both paths call the same `logout` function from `AuthContext`, which clears the stored token and redirects you to the authentication screen.

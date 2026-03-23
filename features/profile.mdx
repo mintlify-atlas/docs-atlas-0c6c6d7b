@@ -1,0 +1,203 @@
+---
+title: Profile
+description: View and manage your Space7 profile, contribution stats, and account settings.
+---
+
+Your profile captures your identity on Space7 and tracks your contribution history across all Spaces. You can update your display information, change your password, or permanently delete your account from the profile settings screen.
+
+## Profile structure
+
+```typescript
+type Profile = {
+  user_id: string;
+  username: string;
+  email: string;
+  bio: string;
+  profile_picture: string;  // URL to avatar image
+  is_verified: boolean;
+  created_at: string;
+  updated_at: string;
+  stats: {
+    spaces_created: number;
+    spaces_participated: number;
+    total_words_contributed: number;
+    total_appreciations_received: number;
+  };
+};
+```
+
+| Field | Description |
+|---|---|
+| `user_id` | Immutable unique identifier |
+| `username` | Public display name shown in Spaces and on messages |
+| `email` | Account email address (not publicly visible) |
+| `bio` | Short text about yourself shown on your profile |
+| `profile_picture` | CDN URL for your avatar image |
+| `is_verified` | `true` if your account has been verified |
+| `created_at` | ISO-8601 timestamp of account creation |
+| `updated_at` | ISO-8601 timestamp of the last profile change |
+
+## Contribution stats
+
+The `stats` object provides a cumulative record of your activity:
+
+<CardGroup cols={2}>
+  <Card title="Spaces created" icon="circle-plus">
+    The total number of Spaces you have created. Reflects your role as a topic initiator in the community.
+  </Card>
+  <Card title="Spaces participated" icon="users">
+    The number of distinct Spaces you have joined and sent at least one message in.
+  </Card>
+  <Card title="Total words contributed" icon="pen">
+    The sum of `word_count` across all your messages. Space7 tracks every word you contribute to discussions.
+  </Card>
+  <Card title="Total appreciations received" icon="thumbs-up">
+    The cumulative count of appreciations (👍) received on all your messages across every Space.
+  </Card>
+</CardGroup>
+
+Your profile is fetched from `GET /api/profile/me` (auth required) and includes the latest stats at request time.
+
+## Updating your profile
+
+### Username
+
+<Steps>
+  <Step title="Navigate to profile settings">
+    Go to your profile screen and tap **Edit username**.
+  </Step>
+  <Step title="Enter a new username">
+    Type the username you want. Usernames must be unique across all Space7 accounts.
+  </Step>
+  <Step title="Save">
+    Tap **Save**. The app sends:
+
+    ```bash
+    PUT /api/profile/username
+    ```
+
+    ```typescript
+    // Request body
+    { username: string }
+
+    // Response
+    { message: string }
+    ```
+  </Step>
+</Steps>
+
+### Bio
+
+<Steps>
+  <Step title="Navigate to profile settings">
+    Go to your profile screen and tap **Edit bio**.
+  </Step>
+  <Step title="Write your bio">
+    Enter a short description of yourself. This text is visible to other users on your profile.
+  </Step>
+  <Step title="Save">
+    Tap **Save**. The app sends:
+
+    ```bash
+    PUT /api/profile/bio
+    ```
+
+    ```typescript
+    // Request body
+    { bio: string }
+
+    // Response
+    { message: string }
+    ```
+  </Step>
+</Steps>
+
+### Profile picture
+
+<Steps>
+  <Step title="Tap your avatar">
+    On your profile screen, tap your current profile picture to open the image picker.
+  </Step>
+  <Step title="Select an image">
+    Choose an image from your device. The default MIME type is `image/jpeg`; the file is named `avatar-{timestamp}.jpg` if no name is provided.
+  </Step>
+  <Step title="Upload">
+    The app uploads the image as `multipart/form-data` under the field name `avatar`:
+
+    ```bash
+    PUT /api/profile/picture
+    ```
+
+    ```typescript
+    // Response
+    { profile_picture: string }  // New CDN URL for the uploaded avatar
+    ```
+
+    Your avatar updates everywhere it appears — messages, Space headers, and your profile — as soon as the upload completes.
+  </Step>
+</Steps>
+
+## Changing your password
+
+<Steps>
+  <Step title="Open security settings">
+    Navigate to your profile settings and tap **Change password**.
+  </Step>
+  <Step title="Enter your current password">
+    Provide your existing password to confirm your identity.
+  </Step>
+  <Step title="Enter a new password">
+    Type and confirm your new password.
+  </Step>
+  <Step title="Submit">
+    Tap **Update password**. The app sends:
+
+    ```bash
+    PUT /api/profile/password
+    ```
+
+    ```typescript
+    // Request body
+    {
+      currentPassword: string;
+      newPassword: string;
+    }
+
+    // Response
+    { message: string }
+    ```
+  </Step>
+</Steps>
+
+<Warning>
+  If `currentPassword` does not match the password on record, the request is rejected with an error. You are not locked out, but you must supply the correct current password to proceed.
+</Warning>
+
+## Deleting your account
+
+<Steps>
+  <Step title="Open danger zone settings">
+    Scroll to the bottom of your profile settings and tap **Delete account**.
+  </Step>
+  <Step title="Confirm">
+    A confirmation prompt appears. Confirm the action to proceed.
+  </Step>
+  <Step title="Account removed">
+    The app sends:
+
+    ```bash
+    DELETE /api/profile/account
+    ```
+
+    ```typescript
+    // Response
+    { message: string }
+    ```
+
+    Your account, messages, and all associated data are permanently deleted.
+  </Step>
+</Steps>
+
+<Warning>
+  Account deletion is irreversible. All your messages, Spaces you created, and contribution history are permanently removed. There is no recovery option.
+</Warning>

@@ -1,0 +1,34 @@
+---
+title: My Discussions
+description: View all spaces you have joined or created. Tap any entry to re-enter the discussion.
+---
+
+My Discussions is the third tab in the bottom bar (blue comments icon). It lists every space associated with your account — both spaces you created and spaces you joined by sending a message.
+
+## Layout
+
+The screen renders a `FlatList` of space cards on a light cream background (`#FDFAF9`). The list supports pull-to-refresh: pull down to reload your spaces from the API.
+
+Each card shows:
+
+- **Title** — large, bold
+- **Description** — medium weight, below the title
+- **Author** — displayed as `@username`
+- **Participant count** — user icon with a number, right-aligned on the author row
+- **Hashtags** — horizontally scrollable row of blue pill badges at the bottom of the card
+
+## Entering a space
+
+Tap anywhere on a space card to open it. The app sets `topicId` in `TopicContext`, which replaces the tab navigator with the [Space screen](/screens/space).
+
+<Tip>
+  After you create a new space from the [New Topic](/screens/new-topic) tab, it appears here automatically. Tap it to open the chat room and start the conversation.
+</Tip>
+
+## Empty state
+
+If you have not joined or created any spaces yet, the screen displays a sad robot illustration instead of a list. Create a new topic from the **New Topic** tab or join a space from the [Home](/screens/home) feed to populate this list.
+
+## Refreshing
+
+Pull down on the list to reload. The screen fetches the latest version of your spaces from the server and re-renders the list.

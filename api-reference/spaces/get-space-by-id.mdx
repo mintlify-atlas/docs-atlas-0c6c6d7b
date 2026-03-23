@@ -1,0 +1,99 @@
+---
+title: "Get Space by ID"
+description: "Retrieve a single space by its unique ID."
+---
+
+## Overview
+
+Fetches a specific space by its `spaceId`. Useful for loading space details when navigating directly to a space.
+
+## Endpoint
+
+```
+GET /api/spaces/:spaceId
+```
+
+<Note>Requires authentication. Include a Bearer token in the `Authorization` header.</Note>
+
+## Request
+
+### Path parameters
+
+<ParamField path="spaceId" type="string" required>
+  The unique ID of the space to retrieve.
+</ParamField>
+
+## Response
+
+Returns a single `Space` object.
+
+<ResponseField name="space_id" type="string">
+  Unique identifier for the space.
+</ResponseField>
+
+<ResponseField name="title" type="string">
+  Display title of the space.
+</ResponseField>
+
+<ResponseField name="description" type="string">
+  Short description of the space.
+</ResponseField>
+
+<ResponseField name="visibility" type="string">
+  Visibility of the space: `"public"` or `"private"`.
+</ResponseField>
+
+<ResponseField name="creator" type="object">
+  The user who created the space.
+
+  <Expandable title="creator properties">
+    <ResponseField name="user_id" type="string">
+      Unique identifier of the creator.
+    </ResponseField>
+
+    <ResponseField name="username" type="string">
+      Username of the creator.
+    </ResponseField>
+
+    <ResponseField name="profile_picture" type="string">
+      URL of the creator's profile picture.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<ResponseField name="participant_count" type="number">
+  Number of participants currently in the space.
+</ResponseField>
+
+<ResponseField name="tags" type="array">
+  Tags associated with the space.
+
+  <Expandable title="tag properties">
+    <ResponseField name="tag_id" type="number">
+      Unique identifier of the tag.
+    </ResponseField>
+
+    <ResponseField name="tag_name" type="string">
+      Display name of the tag.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+## Example
+
+```typescript TypeScript
+import { getSpaceById } from "./api/Spaces";
+
+const space = await getSpaceById("abc123");
+
+console.log(space);
+// {
+//   space_id: "abc123",
+//   title: "Morning Standup",
+//   description: "Daily sync for remote teams",
+//   visibility: "public",
+//   creator: { user_id: "u1", username: "alice", profile_picture: "https://..." },
+//   participant_count: 42,
+//   tags: [{ tag_id: 1, tag_name: "work" }]
+// }
+```

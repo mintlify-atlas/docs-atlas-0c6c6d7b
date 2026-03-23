@@ -1,0 +1,49 @@
+---
+title: "Mark All Notifications as Read"
+description: "Mark all notifications as read for the authenticated user."
+---
+
+## Overview
+
+Marks all of the authenticated user's notifications as read in a single request. Useful for a "mark all as read" action in a notifications panel.
+
+## Endpoint
+
+```
+PUT /api/notifications/read-all
+```
+
+<Note>Requires authentication</Note>
+
+## Request
+
+This endpoint has no path parameters, query parameters, or request body.
+
+## Response
+
+<ResponseField name="message" type="string">
+  A confirmation string indicating all notifications were successfully marked as read.
+</ResponseField>
+
+## Example
+
+```typescript TypeScript
+import { fetchWithAuth } from "./fetchWithAuth";
+
+async function markAllNotificationsAsRead(): Promise<{ message: string }> {
+  const res = await fetchWithAuth(`/api/notifications/read-all`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+
+  const data = await res.json();
+
+  if (!res.ok) {
+    throw new Error(data.error || "Failed to mark all notifications as read");
+  }
+
+  return data; // { message: string }
+}
+```

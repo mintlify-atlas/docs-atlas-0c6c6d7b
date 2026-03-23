@@ -1,0 +1,106 @@
+---
+title: "Get My Spaces"
+description: "Retrieve all spaces owned or joined by the authenticated user, including private spaces."
+---
+
+## Overview
+
+Returns all spaces associated with the currently authenticated user. Unlike the trending and recommended endpoints, this includes private spaces the user owns or has joined.
+
+## Endpoint
+
+```
+GET /api/spaces/my
+```
+
+<Note>Requires authentication. Include a Bearer token in the `Authorization` header.</Note>
+
+## Request
+
+This endpoint has no query parameters or path parameters.
+
+## Response
+
+Returns an array of `Space` objects. Both public and private spaces owned or joined by the user are included.
+
+<ResponseField name="space_id" type="string">
+  Unique identifier for the space.
+</ResponseField>
+
+<ResponseField name="title" type="string">
+  Display title of the space.
+</ResponseField>
+
+<ResponseField name="description" type="string">
+  Short description of the space.
+</ResponseField>
+
+<ResponseField name="visibility" type="string">
+  Visibility of the space. Can be `"public"` or `"private"`.
+</ResponseField>
+
+<ResponseField name="creator" type="object">
+  The user who created the space.
+
+  <Expandable title="creator properties">
+    <ResponseField name="user_id" type="string">
+      Unique identifier of the creator.
+    </ResponseField>
+
+    <ResponseField name="username" type="string">
+      Username of the creator.
+    </ResponseField>
+
+    <ResponseField name="profile_picture" type="string">
+      URL of the creator's profile picture.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<ResponseField name="participant_count" type="number">
+  Number of participants currently in the space.
+</ResponseField>
+
+<ResponseField name="tags" type="array">
+  Tags associated with the space.
+
+  <Expandable title="tag properties">
+    <ResponseField name="tag_id" type="number">
+      Unique identifier of the tag.
+    </ResponseField>
+
+    <ResponseField name="tag_name" type="string">
+      Display name of the tag.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+## Example
+
+```typescript TypeScript
+import { getMySpaces } from "./api/Spaces";
+
+const mySpaces = await getMySpaces();
+
+console.log(mySpaces);
+// [
+//   {
+//     space_id: "prv001",
+//     title: "Team Offsite Planning",
+//     description: "Private planning space for our team",
+//     visibility: "private",
+//     creator: { user_id: "u1", username: "alice", profile_picture: "https://..." },
+//     participant_count: 5,
+//     tags: [{ tag_id: 7, tag_name: "internal" }]
+//   },
+//   {
+//     space_id: "pub002",
+//     title: "Open Source Chat",
+//     description: "Public space for OSS discussions",
+//     visibility: "public",
+//     creator: { user_id: "u3", username: "carol", profile_picture: "https://..." },
+//     participant_count: 130,
+//     tags: [{ tag_id: 2, tag_name: "opensource" }]
+//   }
+// ]
+```

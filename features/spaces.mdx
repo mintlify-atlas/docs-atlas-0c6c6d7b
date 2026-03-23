@@ -1,0 +1,149 @@
+---
+title: Spaces
+description: Create, discover, and join topic-centric discussion rooms called Spaces.
+---
+
+A **Space** is the core unit of discussion in Space7. Each Space is a named room focused on a single topic where participants exchange messages in real time. You can browse public Spaces without an account, but you need to be signed in to create one, join one, or send messages.
+
+## Space structure
+
+Every Space exposes the following fields:
+
+```typescript
+type Space = {
+  space_id: string;
+  title: string;
+  description: string;
+  visibility?: "public" | "private";
+  creator: SpaceCreator;
+  participant_count: number;
+  tags: SpaceTag[];
+};
+
+type SpaceCreator = {
+  user_id: string;
+  username: string;
+  profile_picture: string;
+};
+
+type SpaceTag = {
+  tag_id: number;
+  tag_name: string;
+};
+```
+
+| Field | Description |
+|---|---|
+| `space_id` | Unique identifier for the Space |
+| `title` | Short, descriptive name shown in feeds and the Space header |
+| `description` | Longer text explaining the topic of discussion |
+| `visibility` | `"public"` (default) or `"private"` — controls discoverability |
+| `creator` | The user who created the Space, including their avatar |
+| `participant_count` | Running count of users who have joined |
+| `tags` | List of hashtags attached to the Space for search and filtering |
+
+## Feature highlights
+
+<CardGroup cols={2}>
+  <Card title="Trending feed" icon="fire">
+    Browse the most active public Spaces right from the home screen, sorted by engagement. No sign-in required.
+  </Card>
+  <Card title="Recommended feed" icon="sparkles">
+    Personalised recommendations fetched with your auth token so you see Spaces aligned with your interests.
+  </Card>
+  <Card title="Hashtag support" icon="hashtag">
+    Tag your Space with relevant keywords. Tags are searchable independently, making your Space easier to discover.
+  </Card>
+  <Card title="Public & private" icon="lock">
+    Public Spaces appear in search and feeds. Private Spaces are invite-only and never surface in public results.
+  </Card>
+</CardGroup>
+
+## Creating a Space
+
+<Steps>
+  <Step title="Open the create form">
+    Tap the **+** button on the home screen. You must be signed in to proceed.
+  </Step>
+  <Step title="Fill in the details">
+    Provide the following:
+    - **Title** — a concise name for your topic (required)
+    - **Description** — context that helps others decide whether to join (required)
+    - **Visibility** — choose `public` to appear in feeds and search, or `private` to require an invite code
+    - **Hashtags** — add one or more tags as plain strings (e.g. `"typescript"`, `"gaming"`)
+  </Step>
+  <Step title="Submit">
+    The app calls `POST /api/spaces` with the payload below. On success you receive the new `Space` object and are taken directly into the Space.
+
+    ```typescript
+    type CreateSpacePayload = {
+      title: string;
+      description: string;
+      visibility?: "public" | "private";
+      hashtags: string[];  // e.g. ["react", "mobile"]
+    };
+    ```
+  </Step>
+</Steps>
+
+<Note>
+  Hashtags are stored as `SpaceTag` records and returned in the `tags` array of the Space. You supply them as plain strings when creating — no `#` prefix needed.
+</Note>
+
+## Discovering Spaces
+
+The home screen shows two feeds simultaneously, both filtered to public Spaces only.
+
+### Trending
+
+The trending feed calls `GET /api/spaces/trending` (no auth required) and returns up to 10 public Spaces ordered by current activity. Pull down on the home screen to refresh.
+
+### Recommended
+
+The recommended feed calls `GET /api/spaces/recommended` (auth required) and returns up to 10 personalised Spaces. If you are not signed in, this feed is unavailable.
+
+### My Spaces
+
+You can retrieve only the Spaces you belong to via `GET /api/spaces/my`. This returns all your Spaces regardless of visibility.
+
+### Search
+
+Type any query into the search bar on the home screen to run a full-text and tag-based search simultaneously. See [Search](/features/search) for details.
+
+## Joining a Space
+
+<Steps>
+  <Step title="Select a Space">
+    Tap any Space card in the trending or recommended feed, or in search results. The app fetches the full Space details via `GET /api/spaces/:spaceId`.
+  </Step>
+  <Step title="Join">
+    Tapping a Space card navigates you into it and automatically attempts to join via `POST /api/spaces/:spaceId/join`. For **public** Spaces no extra input is needed.
+
+    For **private** Spaces you must supply a valid invite code:
+
+    ```typescript
+    type JoinSpacePayload = {
+      invite_code?: string;
+    };
+    ```
+  </Step>
+  <Step title="Start participating">
+    Once joined, your `participant_count` increments and you can send messages. If you were already a member, the app silently skips the join call and proceeds directly into the chat.
+  </Step>
+</Steps>
+
+<Warning>
+  Attempting to join a private Space without a valid `invite_code` returns an error. Obtain the invite code from the Space creator before trying to join.
+</Warning>
+
+## Space detail view
+
+When you enter a Space you see:
+
+- The Space **title** and **description** at the top
+- The creator's **avatar** and **@username**
+- The full **message thread** below, defaulting to the `recent` sort order
+- A **message composer** at the bottom with text input and a media attach button
+- A **sort picker** (Recent / Top) accessible from the header overflow menu
+
+The view connects to Socket.IO on mount so new messages from other participants appear instantly without a manual refresh. Pulling down on the message list triggers a full reload of both the Space metadata and the message list.

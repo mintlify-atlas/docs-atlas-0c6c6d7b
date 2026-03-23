@@ -1,0 +1,141 @@
+---
+title: "Search Spaces"
+description: "Search for public spaces using full-text search or by tag."
+---
+
+## Overview
+
+Search for spaces using a text query or a tag. Both endpoints are public and do not require authentication. Only public spaces appear in results.
+
+The `SearchAPI` function combines both search strategies — it runs a tag search and a full-text search in parallel and returns results separately, filtered to only public spaces.
+
+## Endpoints
+
+### Full-text search
+
+```
+GET /api/spaces/search?q={query}
+```
+
+Searches space titles and descriptions using the provided query string.
+
+### Tag search
+
+```
+GET /api/spaces/tag/{tag}
+```
+
+Returns all spaces tagged with the specified tag name.
+
+<Info>No authentication required. Both endpoints are public.</Info>
+
+## Request
+
+### Full-text search — query parameters
+
+<ParamField query="q" type="string" required>
+  The search query string. URL-encoded automatically when using `SearchAPI`.
+</ParamField>
+
+### Tag search — path parameters
+
+<ParamField path="tag" type="string" required>
+  The tag name to filter spaces by.
+</ParamField>
+
+## Response
+
+Both endpoints return an array of `SearchResult` objects. `SearchAPI` returns an object with two arrays.
+
+### `SearchResult` fields
+
+<ResponseField name="space_id" type="string">
+  Unique identifier for the space.
+</ResponseField>
+
+<ResponseField name="title" type="string">
+  Display title of the space.
+</ResponseField>
+
+<ResponseField name="description" type="string">
+  Short description of the space.
+</ResponseField>
+
+<ResponseField name="visibility" type="string">
+  Always `"public"` for results returned by these endpoints.
+</ResponseField>
+
+<ResponseField name="creator" type="object">
+  The user who created the space.
+
+  <Expandable title="creator properties">
+    <ResponseField name="user_id" type="string">
+      Unique identifier of the creator.
+    </ResponseField>
+
+    <ResponseField name="username" type="string">
+      Username of the creator.
+    </ResponseField>
+
+    <ResponseField name="profile_picture" type="string">
+      URL of the creator's profile picture.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<ResponseField name="participant_count" type="number">
+  Number of participants currently in the space.
+</ResponseField>
+
+<ResponseField name="tags" type="array">
+  Tags associated with the space.
+
+  <Expandable title="tag properties">
+    <ResponseField name="tag_id" type="number">
+      Unique identifier of the tag.
+    </ResponseField>
+
+    <ResponseField name="tag_name" type="string">
+      Display name of the tag.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+### `SearchAPI` response shape
+
+<ResponseField name="tagSearchResults" type="SearchResult[]">
+  Spaces matching the query via tag search, filtered to public only.
+</ResponseField>
+
+<ResponseField name="generalSearchResults" type="SearchResult[]">
+  Spaces matching the query via full-text search, filtered to public only.
+</ResponseField>
+
+## Example
+
+```typescript TypeScript
+import { SearchAPI } from "./api/Search";
+
+const { tagSearchResults, generalSearchResults } = await SearchAPI("design");
+
+console.log(tagSearchResults);
+// Spaces tagged with "design"
+// [
+//   {
+//     space_id: "xyz789",
+//     title: "Design Systems",
+//     description: "A space for UI/UX designers",
+//     visibility: "public",
+//     creator: { user_id: "u2", username: "bob", profile_picture: "https://..." },
+//     participant_count: 18,
+//     tags: [{ tag_id: 3, tag_name: "design" }]
+//   }
+// ]
+
+console.log(generalSearchResults);
+// Spaces matching "design" in title or description
+
+// Empty query returns empty results immediately (no network request)
+const emptyResult = await SearchAPI("   ");
+// { tagSearchResults: [], generalSearchResults: [] }
+```

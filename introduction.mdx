@@ -1,0 +1,85 @@
+---
+title: Introduction
+description: Space7 is a topic-centric discussion platform where every conversation lives inside a dedicated room.
+---
+
+# Welcome to Space7
+
+Space7 is a React Native mobile app built for focused, topic-driven discussions. Every conversation belongs to a **Space** — a dedicated room where participants can chat in real time, share media, react to messages, and build searchable, long-term knowledge.
+
+No messy timelines. No scattered threads. Just clean, contextual discussion around topics you care about.
+
+<CardGroup cols={2}>
+  <Card title="Quickstart" icon="rocket" href="/quickstart">
+    Get the app running on Android in minutes
+  </Card>
+  <Card title="Environment Setup" icon="gear" href="/environment-setup">
+    Configure your Android development environment
+  </Card>
+  <Card title="Core Features" icon="star" href="/features/spaces">
+    Explore Spaces, messaging, search, and more
+  </Card>
+  <Card title="API Reference" icon="code" href="/api-reference/auth/signup">
+    Browse the full backend API documentation
+  </Card>
+</CardGroup>
+
+## What is a Space?
+
+A **Space** is the core unit of Space7. Think of it as a chat room built around a single topic — like a Discord channel, but designed for depth rather than speed. Every space has:
+
+- A **title** and **description** that define the topic
+- **Public or private** visibility
+- **Hashtags** for discoverability
+- A **participant count** that grows as people join
+
+## Key features
+
+<CardGroup cols={2}>
+  <Card title="Real-time messaging" icon="message">
+    Send text, images, videos, and audio inside any Space using Socket.IO for instant delivery
+  </Card>
+  <Card title="Message appreciation" icon="heart">
+    React to messages with appreciations — a lightweight way to surface the best contributions
+  </Card>
+  <Card title="Smart search" icon="magnifying-glass">
+    Find spaces by full-text search or by hashtag — both public APIs require no authentication
+  </Card>
+  <Card title="Trending & recommended" icon="chart-line">
+    Discover what's popular or get personalized recommendations based on your activity
+  </Card>
+  <Card title="Media sharing" icon="photo-film">
+    Attach images, videos, or audio files to any message via the document or image picker
+  </Card>
+  <Card title="Notifications" icon="bell">
+    Stay on top of activity with paginated notifications and unread counts
+  </Card>
+  <Card title="User profiles" icon="user">
+    Track contribution stats: spaces created, words contributed, and appreciations received
+  </Card>
+  <Card title="Secure auth" icon="shield">
+    Email + OTP verification, JWT-based sessions stored securely in the device keychain
+  </Card>
+</CardGroup>
+
+## Technology stack
+
+| Layer | Technology |
+|---|---|
+| Framework | React Native 0.84.1 |
+| Language | TypeScript |
+| Navigation | React Navigation 7 |
+| Real-time | Socket.IO client |
+| Auth storage | react-native-keychain |
+| Media | react-native-image-picker, @react-native-documents/picker |
+| Icons | @react-native-vector-icons (Lucide, FontAwesome, Evil Icons) |
+| Linting | Biome |
+| Testing | Jest + Testing Library |
+
+## Target platform
+
+Space7 is built and tested primarily for **Android**. An `ios/` directory exists in the repository from the React Native template, but iOS is not actively maintained.
+
+<Note>
+  Before running the app, make sure your Android development environment is fully configured. See [Environment Setup](/environment-setup) for a step-by-step guide.
+</Note>

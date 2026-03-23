@@ -1,0 +1,40 @@
+---
+title: "Update Bio"
+description: "Update the biography text for the authenticated user."
+---
+
+## Overview
+
+Updates the biography of the currently authenticated user.
+
+## Endpoint
+
+```
+PUT /api/profile/bio
+```
+
+<Note>Requires authentication. Requests are made with a Bearer token via the `Authorization` header.</Note>
+
+## Request
+
+### Body parameters
+
+<ParamField body="bio" type="string" required>
+  The new biography text to set on the profile.
+</ParamField>
+
+## Response
+
+<ResponseField name="message" type="string">
+  A confirmation message indicating the bio was updated successfully.
+</ResponseField>
+
+## Example
+
+```typescript TypeScript
+import { updateBio } from "./api/Profile";
+
+const response = await updateBio({ bio: "Writer. Explorer. Space7 enthusiast." });
+
+console.log(response.message);
+```
