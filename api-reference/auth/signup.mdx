@@ -60,7 +60,9 @@ POST /api/auth/signup
 ## Example
 
 ```typescript TypeScript
-const API = process.env.SERVER_ENDPOINT ?? "";
+import { SERVER_ENDPOINT } from "@env";
+
+const API = SERVER_ENDPOINT ?? "";
 
 const signup = async (username: string, email: string, password: string) => {
   const res = await fetch(`${API}/api/auth/signup`, {

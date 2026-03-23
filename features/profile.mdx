@@ -63,14 +63,17 @@ Your profile is fetched from `GET /api/profile/me` (auth required) and includes 
 ### Username
 
 <Steps>
-  <Step title="Navigate to profile settings">
-    Go to your profile screen and tap **Edit username**.
+  <Step title="Open Profile Actions">
+    Go to the **My Profile** tab and tap the yellow menu (hamburger) button in the header. The Profile Actions modal opens.
+  </Step>
+  <Step title="Tap Change Username">
+    Tap **Change Username** in the modal. A text input expands inline.
   </Step>
   <Step title="Enter a new username">
     Type the username you want. Usernames must be unique across all Space7 accounts.
   </Step>
   <Step title="Save">
-    Tap **Save**. The app sends:
+    Tap **Save Username**. The app sends:
 
     ```bash
     PUT /api/profile/username
@@ -89,14 +92,17 @@ Your profile is fetched from `GET /api/profile/me` (auth required) and includes 
 ### Bio
 
 <Steps>
-  <Step title="Navigate to profile settings">
-    Go to your profile screen and tap **Edit bio**.
+  <Step title="Open Profile Actions">
+    Go to the **My Profile** tab and tap the yellow menu (hamburger) button in the header.
+  </Step>
+  <Step title="Tap Change Bio">
+    Tap **Change Bio** in the modal. A multiline text input expands inline.
   </Step>
   <Step title="Write your bio">
     Enter a short description of yourself. This text is visible to other users on your profile.
   </Step>
   <Step title="Save">
-    Tap **Save**. The app sends:
+    Tap **Save Bio**. The app sends:
 
     ```bash
     PUT /api/profile/bio
@@ -115,11 +121,14 @@ Your profile is fetched from `GET /api/profile/me` (auth required) and includes 
 ### Profile picture
 
 <Steps>
-  <Step title="Tap your avatar">
-    On your profile screen, tap your current profile picture to open the image picker.
+  <Step title="Open Profile Actions">
+    Go to the **My Profile** tab and tap the yellow menu (hamburger) button in the header.
+  </Step>
+  <Step title="Tap Change Profile Picture">
+    Tap **Change Profile Picture** in the modal. The document picker opens immediately, filtered to image files.
   </Step>
   <Step title="Select an image">
-    Choose an image from your device. The default MIME type is `image/jpeg`; the file is named `avatar-{timestamp}.jpg` if no name is provided.
+    Choose an image from your device (5 MB maximum). The default MIME type is `image/jpeg`; the file is named `avatar-{timestamp}.jpg` if no name is provided.
   </Step>
   <Step title="Upload">
     The app uploads the image as `multipart/form-data` under the field name `avatar`:
@@ -140,17 +149,20 @@ Your profile is fetched from `GET /api/profile/me` (auth required) and includes 
 ## Changing your password
 
 <Steps>
-  <Step title="Open security settings">
-    Navigate to your profile settings and tap **Change password**.
+  <Step title="Open Profile Actions">
+    Go to the **My Profile** tab and tap the yellow menu (hamburger) button in the header.
+  </Step>
+  <Step title="Tap Change Password">
+    Tap **Change Password** in the modal. Two password fields expand inline.
   </Step>
   <Step title="Enter your current password">
     Provide your existing password to confirm your identity.
   </Step>
   <Step title="Enter a new password">
-    Type and confirm your new password.
+    Type your new password in the second field.
   </Step>
   <Step title="Submit">
-    Tap **Update password**. The app sends:
+    Tap **Save Password**. The app sends:
 
     ```bash
     PUT /api/profile/password
@@ -176,11 +188,14 @@ Your profile is fetched from `GET /api/profile/me` (auth required) and includes 
 ## Deleting your account
 
 <Steps>
-  <Step title="Open danger zone settings">
-    Scroll to the bottom of your profile settings and tap **Delete account**.
+  <Step title="Open Profile Actions">
+    Go to the **My Profile** tab and tap the yellow menu (hamburger) button in the header.
+  </Step>
+  <Step title="Tap Delete Account">
+    Tap **Delete Account** (pink button at the bottom of the modal).
   </Step>
   <Step title="Confirm">
-    A confirmation prompt appears. Confirm the action to proceed.
+    A native confirmation alert appears: *"This permanently deletes your account and all associated data."* Tap **Delete** to proceed, or **Cancel** to abort.
   </Step>
   <Step title="Account removed">
     The app sends:

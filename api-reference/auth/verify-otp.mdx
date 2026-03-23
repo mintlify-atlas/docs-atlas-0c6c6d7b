@@ -56,7 +56,9 @@ POST /api/auth/verify-otp
 ## Example
 
 ```typescript TypeScript
-const API = process.env.SERVER_ENDPOINT ?? "";
+import { SERVER_ENDPOINT } from "@env";
+
+const API = SERVER_ENDPOINT ?? "";
 
 const verifyOTP = async (otp: string, email: string) => {
   const res = await fetch(`${API}/api/auth/verify-otp`, {

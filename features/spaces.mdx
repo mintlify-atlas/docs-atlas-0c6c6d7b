@@ -62,18 +62,21 @@ type SpaceTag = {
 ## Creating a Space
 
 <Steps>
-  <Step title="Open the create form">
-    Tap the **+** button on the home screen. You must be signed in to proceed.
+  <Step title="Open the New Topic tab">
+    Tap the **New Topic** tab (pink plus icon) in the bottom navigation bar. You must be signed in to proceed.
   </Step>
   <Step title="Fill in the details">
     Provide the following:
     - **Title** — a concise name for your topic (required)
     - **Description** — context that helps others decide whether to join (required)
-    - **Visibility** — choose `public` to appear in feeds and search, or `private` to require an invite code
-    - **Hashtags** — add one or more tags as plain strings (e.g. `"typescript"`, `"gaming"`)
+    - **Hashtags** — add one or more tags as a comma-separated list (e.g. `typescript, gaming`)
+
+    <Note>
+      Visibility is fixed to **public** in the current release of the New Topic screen. All spaces created through the app are public.
+    </Note>
   </Step>
   <Step title="Submit">
-    The app calls `POST /api/spaces` with the payload below. On success you receive the new `Space` object and are taken directly into the Space.
+    The app calls `POST /api/spaces` with the payload below. On success the form clears and the app navigates to the **My Discussions** tab where the new Space appears.
 
     ```typescript
     type CreateSpacePayload = {

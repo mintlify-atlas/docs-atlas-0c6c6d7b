@@ -42,7 +42,6 @@ space7/
     │   ├── my-profile/
     │   ├── new-topic/
     │   ├── notifications/
-    │   ├── settings/
     │   └── space/
     ├── sockets/
     │   └── SocketInstance.ts
@@ -151,14 +150,13 @@ Each subdirectory maps to one app area. Screen components import from `api/`, `c
 | `auth/` | `AuthScreen` — shown before authentication | — |
 | `home/` | `Home` — main topic feed | Home (house) |
 | `new-topic/` | `NewTopic` — create a new topic | Plus (pink badge) |
-| `my-discussions/` | `MyDiscussions` — discussions the user participates in | Comments |
+| `my-discussions/` | `MyDiscussions` — all spaces associated with the user | Comments |
 | `my-profile/` | `MyProfile` — user profile and settings | User |
-| `notifications/` | `Notifications` — notification inbox | — |
-| `settings/` | Settings screen | — |
+| `notifications/` | `NotificationsScreen` — notification inbox | — |
 | `space/` | `Space` — real-time discussion view for a topic | — |
 
 <Note>
-  `Notifications` and `Settings` screens are not currently registered as bottom tabs in `App.tsx`. They are available as screen components but must be navigated to from within other screens.
+  `NotificationsScreen` is not a bottom tab. It is rendered inline inside the `Home` screen when the bell icon is tapped — it replaces the Home content and is dismissed via a back arrow.
 </Note>
 
 ### `sockets/`
